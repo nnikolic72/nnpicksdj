@@ -18,7 +18,7 @@ class GoodUser(models.Model):
         return self.creation_date >= timezone.now() - datetime.timedelta(days=1)
         
     user_name = models.CharField(max_length=100, unique=True)
-    email = models.EmailField(null=True)
+    email = models.EmailField(null=True, blank=True)
     twitter_handle = models.CharField(max_length=100, null=True, blank=True)
     facebook_handle = models.CharField(max_length=100, null=True, blank=True)
     eyeem_handle = models.CharField(max_length=100, null=True, blank=True)
