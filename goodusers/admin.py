@@ -1,17 +1,49 @@
 from sys import exc_info
 
 from django.contrib import admin, messages
-from goodusers.models import GoodUser
 from django.utils import timezone
 
 from instagram import InstagramAPI
 from instagram.bind import InstagramAPIError, InstagramClientError
 
+from .models import GoodUser
 from nnpicksdj.settings import INSTAGRAM_API_KEY
+#from django.conf import settings
 
     
 class GoodUserAdmin(admin.ModelAdmin):
     '''Definition of Admin interface for GoodUsers model'''
+    
+    def init_instagram_API(self, request):
+        '''Initializes Instagram API session
+        
+        Parameters: -
+        Returns: Instagram API session
+        '''
+        
+        '''Read variable from settings.py'''
+        #INSTAGRAM_API_KEY = getattr(settings, 'INSTAGRAM_API_KEY')
+        access_token = INSTAGRAM_API_KEY
+        try:
+            api = InstagramAPI(access_token=access_token)
+        except InstagramAPIError as e:
+            buf = None
+            buf = "process_gooduser: ERR-00001 Instagram API Error %s : %s" % (e.status_code, e.error_message)
+            self.message_user(request, buf, level=messages.WARNING)
+            return None
+        except InstagramClientError as e:
+            buf = None
+            buf = "process_gooduser: ERR-00002 Instagram Client Error %s : %s" % (e.status_code, e.error_message)
+            self.message_user(request, buf, level=messages.WARNING)
+            return None
+        except:
+            buf = None
+            buf = "process_gooduser: ERR-00003 Unexpected error: " + exc_info()[0]    
+            self.message_user(request, buf, level=messages.ERROR)
+            raise  
+        
+        return api        
+        
     
     def analyze_gooduser(self, request, api, p_gooduser):
         '''Do the processing of Good User with Instagram API
@@ -25,10 +57,12 @@ class GoodUserAdmin(admin.ModelAdmin):
             buf = None
             buf = "analyze_gooduser: ERR-00004 Instagram API Error %s : %s" % (e.status_code, e.error_message)
             self.message_user(request, buf, level=messages.WARNING)
+            return None
         except InstagramClientError as e:
             buf = None
             buf = "analyze_gooduser: ERR-00005 Instagram Client Error %s : %s" % (e.status_code, e.error_message)
             self.message_user(request, buf, level=messages.WARNING)
+            return None
         except:
             buf = None
             buf = "analyze_gooduser: ERR-00006 Unexpected error: " + exc_info()[0]    
@@ -48,29 +82,16 @@ class GoodUserAdmin(admin.ModelAdmin):
                
         return p_gooduser    
     
+    
     def process_gooduser(self, request, queryset):
-        '''Do what is needed to process a GoodUser'''
+        '''Action -> Do what is needed to process a GoodUser with Instagram API
+           Process only users that are marked to be processed -> to_be_processed==True
+        '''
         
         queryset = queryset.filter(to_be_processed=True)
         l_counter = 0
         
-        '''ToDo : add this to secret sessions'''
-        access_token=INSTAGRAM_API_KEY
-        try:
-            api = InstagramAPI(access_token=access_token)
-        except InstagramAPIError as e:
-            buf = None
-            buf = "process_gooduser: ERR-00001 Instagram API Error %s : %s" % (e.status_code, e.error_message)
-            self.message_user(request, buf, level=messages.WARNING)
-        except InstagramClientError as e:
-            buf = None
-            buf = "process_gooduser: ERR-00002 Instagram Client Error %s : %s" % (e.status_code, e.error_message)
-            self.message_user(request, buf, level=messages.WARNING)
-        except:
-            buf = None
-            buf = "process_gooduser: ERR-00003 Unexpected error: " + exc_info()[0]    
-            self.message_user(request, buf, level=messages.ERROR)
-            raise    
+        api = self.init_instagram_API(request)
         
         for obj in queryset:
             obj.to_be_processed = False
@@ -82,16 +103,60 @@ class GoodUserAdmin(admin.ModelAdmin):
         
         self.message_user(request, '%s user(s) processed successfully.' % (l_counter))
     process_gooduser.short_description = 'Process Good User by Instagram API' 
+    
+    
+    def set_goodusers_process_true(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to True.
+           Process only GoodUsers that have flag to_be_processed set to False.
+           to_be_processed==False
+        '''
+        
+        queryset = queryset.filter(to_be_processed=False)
+        l_counter = 0
+        
+        for obj in queryset:
+            obj.to_be_processed = True        
+            obj.save()
+            l_counter += 1
+        
+        self.message_user(request, '%s user(s) flagged to "To Be Processed" successfully.' % (l_counter))
+    set_goodusers_process_true.short_description = 'Set "To Be Processed" to "Yes"' 
 
+
+    def set_goodusers_process_false(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to False.
+           Process only GoodUsers that have flag to_be_processed set to True.
+           to_be_processed==True
+        '''
+        
+        queryset = queryset.filter(to_be_processed=True)
+        l_counter = 0
+        
+        for obj in queryset:
+            obj.to_be_processed = False        
+            obj.save()
+            l_counter += 1
+        
+        self.message_user(request, '%s user(s) flagged to "Not To Be Processed" successfully.' % (l_counter))
+    set_goodusers_process_false.short_description = 'Set "To Be Processed" to "No"'     
 
     '''Determine what is displayed when GoodUser is displayed as a list'''
     list_display = ('user_name', 'instagram_user_name', 'full_name', 
                     'number_of_followers', 'creation_date', 'last_processed_date', 
                     'to_be_processed' ,'was_added_recently', 'pk')
     
+    '''Add fields by which you want to sort a model'''
     ordering = ('user_name',)
+    
+    '''Add fields from the model by which we want to filter list'''
+    list_filter = ('to_be_processed', 'last_processed_date', 'creation_date')
+    
+    '''Add a field from the model by which you want to search'''
+    search_fields = ('instagram_user_name', )
  
-    actions = (process_gooduser,)
+    '''Define a list of actions listed in Admin interface Action combo box'''
+    actions = (process_gooduser, set_goodusers_process_true, 
+               set_goodusers_process_false)
     
     '''Determine what is dispalayed on GoodUser Admin Edit form'''
     fieldsets = [

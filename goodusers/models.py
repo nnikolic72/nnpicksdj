@@ -30,9 +30,9 @@ class GoodUser(models.Model):
     eyeem_handle = models.CharField(max_length=100, null=True, blank=True)
     instagram_user_name = models.CharField(max_length=100, unique=True)
     instagram_user_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    instagram_profile_picture_URL = models.CharField(max_length=255, null=True, blank=True)
+    instagram_profile_picture_URL = models.URLField(max_length=255, null=True, blank=True)
     instagram_user_bio = models.CharField(max_length=500, null=True, blank=True)
-    instagram_user_website_URL = models.CharField(max_length=255, null=True, blank=True)
+    instagram_user_website_URL = models.URLField(max_length=255, null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
     instagram_user_full_name = models.CharField(max_length=100, null=True, blank=True)
     

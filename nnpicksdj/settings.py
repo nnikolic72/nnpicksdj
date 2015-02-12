@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from ConfigParser import RawConfigParser
+from django.conf.global_settings import TEMPLATE_DIRS
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -38,6 +39,7 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+TEMPLATE_DIRS = [BASE_DIR + '\\templates', BASE_DIR + '\\templates\\admin']
 
 # Application definition
 
@@ -65,8 +67,15 @@ ROOT_URLCONF = 'nnpicksdj.urls'
 
 WSGI_APPLICATION = 'nnpicksdj.wsgi.application'
 
+'''Load settings_local.py from top-level project directory if present. 
+   Used to override settings on the project level.
+   Everyone can use this file as a local-only file, without pushing to remote
+   repository.
+'''
 try:
-    from settings_local import *
+    from settings_local import DATABASE_ENGINE, DATABASE_NAME, DATABASE_USER, \
+                               DATABASE_PASSWORD, DATABASE_HOST, DATABASE_PORT
+    
     #pass
 except:
     pass
