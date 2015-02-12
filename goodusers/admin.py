@@ -7,7 +7,7 @@ from django.utils import timezone
 from instagram import InstagramAPI
 from instagram.bind import InstagramAPIError, InstagramClientError
 
-
+from nnpicksdj.settings import INSTAGRAM_API_KEY
 
     
 class GoodUserAdmin(admin.ModelAdmin):
@@ -55,7 +55,7 @@ class GoodUserAdmin(admin.ModelAdmin):
         l_counter = 0
         
         '''ToDo : add this to secret sessions'''
-        access_token='1546646729.2d6fe64.91d6953b286d467ea889016903648d96'
+        access_token=INSTAGRAM_API_KEY
         try:
             api = InstagramAPI(access_token=access_token)
         except InstagramAPIError as e:
