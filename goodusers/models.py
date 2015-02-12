@@ -5,6 +5,7 @@ import datetime
 # Create your models here.
 class GoodUser(models.Model):
     '''Data model class for Good User, handpicked Instagram user'''
+    '''Created my first branch and a first change'''
     
     def xyz(self):
         return None
