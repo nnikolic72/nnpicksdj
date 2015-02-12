@@ -1,12 +1,10 @@
 from django.db import models
 from django.utils import timezone
 import datetime
-from django.template.defaultfilters import default
 
 # Create your models here.
 class GoodUser(models.Model):
     '''Data model class for Good User, handpicked Instagram user'''
-    '''Test GitHub from home PC, second try'''
     
     def xyz(self):
         return None
