@@ -1,0 +1,10 @@
+{% if goodusers_list %}
+    <ul>
+        {% for gooduser in goodusers_list %}
+        <li><a href='/goodusers/{{gooduser.instagram_user_name}}'>{{gooduser.instagram_user_name}}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+<p>No Instagram Talents available in our database.</p>
+
+{% endif %}

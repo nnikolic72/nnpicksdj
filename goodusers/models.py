@@ -35,6 +35,7 @@ class GoodUser(models.Model):
     instagram_user_website_URL = models.URLField(max_length=255, null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
     instagram_user_full_name = models.CharField(max_length=100, null=True, blank=True)
+    is_user_active = models.BooleanField(default=False, null=False)
     
     number_of_followers = models.IntegerField(default=0, null=True, blank=True)
     number_of_followings = models.IntegerField(default=0, null=True, blank=True)
@@ -45,7 +46,7 @@ class GoodUser(models.Model):
     '''Number of times GoodUser is processed'''
     times_processed = models.IntegerField('Number of times processed', default=0, null=False)
     '''GoodUser is marked for processing next time GoodUser Batch Processing is run'''
-    to_be_processed = models.BooleanField(default=False, null=False)
+    to_be_processed = models.BooleanField(default=True, null=False)
     
     creation_date = models.DateTimeField('GoodUser creation date', auto_now_add=True)
     last_update_date = models.DateTimeField('GoodUser creation date', auto_now=True)
