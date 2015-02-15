@@ -7,8 +7,21 @@ class GoodUser(models.Model):
     '''Data model class for Good User, handpicked Instagram user'''
     '''Created my first branch and a first change'''
     
-    def xyz(self):
-        return None
+    def generate_instagram_profile_page_URL(self):
+        '''Generate Instagram.com profile page URL for the user'''
+        
+        l_instagram_profile_page_URL = ''
+        l_instagram_profile_page_URL = 'http://www.instagram.com/%s' % (self.instagram_user_name)
+        return l_instagram_profile_page_URL
+    
+    
+    def generate_iconosquare_profile_page_URL(self):
+        '''Generate Iconosquare.com profile page URL for the user'''
+        
+        l_iconosquare_profile_page_URL = ''
+        l_iconosquare_profile_page_URL = 'http://iconosquare.com/viewer.php#/user/%s/' % (self.instagram_user_id)
+        return l_iconosquare_profile_page_URL    
+    
     
     def __str__(self):
         '''return text for this class'''
@@ -29,12 +42,20 @@ class GoodUser(models.Model):
     facebook_handle = models.CharField(max_length=100, null=True, blank=True)
     eyeem_handle = models.CharField(max_length=100, null=True, blank=True)
     instagram_user_name = models.CharField(max_length=100, unique=True)
-    instagram_user_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    instagram_profile_picture_URL = models.URLField(max_length=255, null=True, blank=True)
+    instagram_user_id = models.CharField(max_length=100, unique=True, null=True,
+                                        blank=True)
+    instagram_user_profile_page_URL = models.URLField(max_length=255, null=True, 
+                                                    blank=True, default='')
+    iconosquare_user_profile_page_URL = models.URLField(max_length=255, null=True, 
+                                                    blank=True, default='')
+    instagram_profile_picture_URL = models.URLField(max_length=255, null=True, 
+                                                    blank=True)
     instagram_user_bio = models.CharField(max_length=500, null=True, blank=True)
-    instagram_user_website_URL = models.URLField(max_length=255, null=True, blank=True)
+    instagram_user_website_URL = models.URLField(max_length=255, null=True, 
+                                                 blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
-    instagram_user_full_name = models.CharField(max_length=100, null=True, blank=True)
+    instagram_user_full_name = models.CharField(max_length=100, null=True, 
+                                                blank=True)
     is_user_active = models.BooleanField(default=False, null=False)
     
     number_of_followers = models.IntegerField(default=0, null=True, blank=True)

@@ -22,7 +22,13 @@
 
         <!-- Add your site or application content here -->
 {% if good_user %}
-<p>Details of GoodUser with Instagram handle {{good_user.instagram_user_name}}
+<h1>Details of GoodUser with Instagram handle {{good_user.instagram_user_name}}</h1>
+<table>
+    <tr>
+        <td><img src='{{good_user.instagram_profile_picture_URL}}'><a href='{{good_user.instagram_user_profile_page_URL}}'></a></img></td><td>{{user_name}}</td>
+        <td>Instagram User name</td><td>{{good_user.instagram_user_name}}</td>
+    </tr>
+</table>
 {% endif %}
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
