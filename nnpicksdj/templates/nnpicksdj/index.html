@@ -39,17 +39,8 @@
 
                 <article>
                     <section>
-                        <h2>List of Instagram talents</h2>
-{% if goodusers_list %}
-    <ul>
-        {% for gooduser in goodusers_list %}
-        <li><a href='/goodusers/{{gooduser.instagram_user_name}}'>{{gooduser.instagram_user_name}}</a></li>
-        {% endfor %}
-    </ul>
-{% else %}
-<p>No Instagram Talents available in our database.</p>
-
-{% endif %}
+                        <h2>Search for Instagram talents</h2>
+                        <p>SEARCH FORM</p>
                     </section>
                     <footer>
                         <h3>Know an Instagram talent?</h3>
@@ -57,14 +48,17 @@
                     </footer>
                 </article>
 
+
+                <aside>
+                    <h3>Login</h3>
+                    <p>LOGIN FORM</p>
+                </aside>
+                
                 <aside>
                     <h3>Support Talented Users of Instagram Web Site</h3>
                     <p>Please spread the word!</p>
                 </aside>
-                <aside>
-                    <h3>Browes Talented users by category</h3>
-                    <p>Category1</p>
-                </aside>
+                                
             </div> <!-- #main -->
         </div> <!-- #main-container -->
 

@@ -12,8 +12,8 @@ from nnpicksdj.settings import INSTAGRAM_API_KEY
 
     
 class GoodUserAdmin(admin.ModelAdmin):
-    '''Definition of Admin interface for GoodUsers model'''
-    
+    '''Definition of Admin interface for GoodUsers model'''                                                          
+                                                                        
     def init_instagram_API(self, request):
         '''Initializes Instagram API session
         
@@ -97,6 +97,8 @@ class GoodUserAdmin(admin.ModelAdmin):
             obj.to_be_processed = False
             obj.last_processed_date = timezone.datetime.now()
             obj.times_processed = obj.times_processed + 1
+            obj.instagram_user_profile_page_URL = self.generate_instagram_profile_page_URL(obj.instagram_user_name)
+            obj.iconosquare_user_profile_page_URL = self.generate_iconosquare_profile_page_URL(obj.instagram_user_id)
             obj = self.analyze_gooduser(request, api, obj)
             obj.save()
             l_counter += 1
@@ -138,7 +140,39 @@ class GoodUserAdmin(admin.ModelAdmin):
             l_counter += 1
         
         self.message_user(request, '%s user(s) flagged to "Not To Be Processed" successfully.' % (l_counter))
-    set_goodusers_process_false.short_description = 'Set "To Be Processed" to "No"'     
+    set_goodusers_process_false.short_description = 'Set "To Be Processed" to "No"'  
+    
+    def generate_instagram_profile_page_URL(self, p_instagram_user_name):
+        '''Generate Instagram.com profile page URL for the user
+        
+        Parameters:
+        p_instagram_user_name: Instagram user name, used to generate URL for profile page
+        
+        Returns:
+        URL of Instagram profile page for this GoodUser
+        '''
+        
+        l_instagram_profile_page_URL = 'http://www.instagram.com/%s' % (p_instagram_user_name)
+        return l_instagram_profile_page_URL
+    generate_instagram_profile_page_URL.admin_order_field = 'instagram_user_name'    
+    generate_instagram_profile_page_URL.short_description = 'Instagram profile page URL'     
+    
+    def generate_iconosquare_profile_page_URL(self, p_instagram_user_id):
+        '''Generate Iconosquare.com profile page URL for the user
+        
+        Parameters:
+        p_instagram_user_id: Instagram user ID, used to generate URL for profile page
+        
+        Returns:
+        URL of Iconosquare profile page for this GoodUser
+        '''
+        
+        l_iconosquare_profile_page_URL = 'http://iconosquare.com/viewer.php#/user/%s/' % (p_instagram_user_id)
+        return l_iconosquare_profile_page_URL  
+    generate_iconosquare_profile_page_URL.admin_order_field = 'instagram_user_name'    
+    generate_iconosquare_profile_page_URL.short_description = 'Iconosquare profile page URL'  
+    
+    
 
     '''Determine what is displayed when GoodUser is displayed as a list'''
     list_display = ('user_name', 'instagram_user_name', 'full_name', 
@@ -160,17 +194,34 @@ class GoodUserAdmin(admin.ModelAdmin):
     
     '''Determine what is dispalayed on GoodUser Admin Edit form'''
     fieldsets = [
-        ('General Information', {'fields': ['user_name', 'full_name', 'email']}),
-        ('Instagram Information', {'fields': ['instagram_user_name', 'number_of_media', 
+        ('General Information', {'fields': ['user_name', 'full_name', 'email', 
+                                            'instagram_user_name'
+                                            ]
+                                 }
+         ),
+        ('GoodUser Processing Information', {'fields': ['last_processed_date', 
+                                                        'times_processed', 'to_be_processed'
+                                                        ]
+                                             }
+         ),         
+        ('Instagram Information', {'fields': ['number_of_media', 
                                               'number_of_followers', 'number_of_followings', 
                                               'instagram_user_full_name', 'instagram_profile_picture_URL',
                                               'instagram_user_bio', 'instagram_user_website_URL',
-                                              'instagram_user_id']}),
-        ('GoodUser Processing Information', {'fields': ['last_processed_date', 
-                                                        'times_processed', 'to_be_processed']}),                 
+                                              'instagram_user_id']
+                                   }
+         ),                
         ('Additional Social Media Information', {'fields': ['twitter_handle', 'facebook_handle',
-                                                             'eyeem_handle'],
-                                                'classes': ['collapse']}),
+                                                             'eyeem_handle'
+                                                             ],
+                                                'classes': ['collapse']
+                                                }
+         ),
+        ('Other Web Sites Links for Good User', {'fields': ['instagram_user_profile_page_URL',
+                                                            'iconosquare_user_profile_page_URL'
+                                                            ]
+                                                 }
+         ),
 
         #('Time Information', {'fields': ['creation_date', 'last_update_date']})                 
     ]

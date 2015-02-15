@@ -39,7 +39,10 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-TEMPLATE_DIRS = [BASE_DIR + '\\templates', BASE_DIR + '\\templates\\admin']
+TEMPLATE_DIRS = [BASE_DIR + '\\nnpicksdj\\templates\\nnpicksdj', 
+                 BASE_DIR + '\\templates', 
+                 BASE_DIR + '\\templates\\admin', 
+                 ]
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
