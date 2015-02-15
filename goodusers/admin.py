@@ -9,6 +9,7 @@ from instagram.bind import InstagramAPIError, InstagramClientError
 from .models import GoodUser
 from nnpicksdj.settings import INSTAGRAM_API_KEY
 
+
     
 class GoodUserAdmin(admin.ModelAdmin):
     '''Definition of Admin interface for GoodUsers model'''                                                          
