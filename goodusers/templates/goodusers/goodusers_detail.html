@@ -3,16 +3,29 @@
 {% block content %}
     <article>
         <section>
-            <div class="main wrapper clearfix">
+            <div class="clearfix">
             <section>
                 <h2>@{{good_user.instagram_user_name}}</h2>
-                <h2><a href='{{good_user.instagram_user_profile_page_URL}}' target='_blank'><img src='{{good_user.instagram_profile_picture_URL}}'></img></a></h2>
-            </section>
-            <section>
+                <figure>
+                    <a href='{{good_user.instagram_user_profile_page_URL}}' target='_blank'><img src='{{good_user.instagram_profile_picture_URL}}'></img></a>
+                    <figcaption>{{good_user.instagram_user_name}} profile picture</figcaption>
+                </figure>
+
                 <h3>Instagram data</h3>
-                <p>Number of followers {{good_user.number_of_followers}}</p>
-                <p>Number of followings {{good_user.number_of_followings}}</p>
-                <p>Number of posts {{good_user.number_of_media}}</p>
+                <div class='gublockcontainer'>
+	                <div class='gublockheader'>Followers</div>
+	                <div class='gublock'>{{good_user.number_of_followers}}</div>
+                </div>
+                
+                <div class='gublockcontainer'>
+	                <div class='gublockheader'>Followings</div>
+	                <div class='gublock'>{{good_user.number_of_followings}}</div>
+                </div>
+                
+                <div class='gublockcontainer'>                
+	                <div class='gublockheader'>Posts</div>
+	                <div class='gublock'>{{good_user.number_of_media}}</div>
+                </div>
             </section>
             </div>
         </section>

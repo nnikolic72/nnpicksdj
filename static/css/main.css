@@ -154,10 +154,34 @@ nav a:hover {
    Author's custom styles
    ========================================================================== */
 
+/* GoodUsers CSS styles ----------------------------------- */
 
+.gublockcontainer {
+    float: left;
+    border-style: solid;
+    border-width: 3px;
+    margin: 1px;
+    width: 30%;
+}
 
+.gublock, .gublockheader {
+    display: block;
+    background-color: #f16529;
+    padding: 20px;
+    font-size: 15px; 
 
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    color: white;    
+}
 
+.gublockheader {
+    background-color: #e44d26;
+    padding: 10px;
+}
+
+/* END GoodUsers CSS styles ----------------------------------- */
 
 
 
