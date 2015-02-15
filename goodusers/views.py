@@ -1,23 +1,19 @@
 from django.shortcuts import render
 from django.http import Http404
+from django.views import generic
 
 from .models import GoodUser
 
-
 # Create your views here.
-def index(request):
-    '''Test index page'''
+class IndexView(generic.ListView):
+    '''Generic Django ListView extension - displays a list of GoodUsers'''
     
-    '''Prepare a list of GoodUsers to display in the template index.html'''
-    try:
-        goodusers_list = GoodUser.objects.order_by('user_name')
-    except GoodUser.DoesNotExist:
-        raise Http404('No Instagram Talents found in our database.')
-            
-    '''render is rendered using index.html and data assigned in context'''
-    return render(request, 'goodusers/index.html', 
-                  {'goodusers_list': goodusers_list, }
-                  )
+    template_name = 'goodusers/index.html'
+    context_object_name = 'goodusers_list'
+    
+    def get_queryset(self):
+        return GoodUser.objects.order_by('user_name')
+
 
 
 def detail(request, p_instagram_user_name):

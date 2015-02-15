@@ -6,7 +6,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title></title>
+        <title>The Talents of Instagram</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="apple-touch-icon" href="{{STATIC_URL}}apple-touch-icon.png">
@@ -26,8 +26,8 @@
                 <h1 class="title">Talented Users of Instagram</h1>
                 <nav>
                     <ul>
-                        <li><a href="/">Home</a></li>
-                        <li><a href="/goodusers/">Browse</a></li>
+                        <li><a href="{% url 'apphome' %}">Home</a></li>
+                        <li><a href="{% url 'index' %}">Browse</a></li>
                         <li><a href="#">Link 3</a></li>
                     </ul>
                 </nav>
@@ -37,7 +37,12 @@
         <div class="main-container">
             <div class="main wrapper clearfix">
 
+
+
                 {% block content %}{% endblock %}
+
+
+
                                 
             </div> <!-- #main -->
         </div> <!-- #main-container -->
