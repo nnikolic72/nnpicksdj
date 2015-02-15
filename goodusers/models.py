@@ -29,6 +29,9 @@ class GoodUser(models.Model):
     facebook_handle = models.CharField(max_length=100, null=True, blank=True)
     eyeem_handle = models.CharField(max_length=100, null=True, blank=True)
     instagram_user_name = models.CharField(max_length=100, unique=True)
+    instagram_user_name_valid = models.BooleanField(default=True, null=False,
+                                          help_text=_('Check if Instagram user is valid/exists.')
+                                          )
     instagram_user_id = models.CharField(max_length=100, unique=True, null=True,
                                         blank=True
                                         )

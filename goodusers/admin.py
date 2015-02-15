@@ -8,7 +8,6 @@ from instagram.bind import InstagramAPIError, InstagramClientError
 
 from .models import GoodUser
 from nnpicksdj.settings import INSTAGRAM_API_KEY
-#from django.conf import settings
 
     
 class GoodUserAdmin(admin.ModelAdmin):
@@ -22,7 +21,6 @@ class GoodUserAdmin(admin.ModelAdmin):
         '''
         
         '''Read variable from settings.py'''
-        #INSTAGRAM_API_KEY = getattr(settings, 'INSTAGRAM_API_KEY')
         access_token = INSTAGRAM_API_KEY
         try:
             api = InstagramAPI(access_token=access_token)
@@ -69,16 +67,39 @@ class GoodUserAdmin(admin.ModelAdmin):
             self.message_user(request, buf, level=messages.ERROR)
             raise          
         
-        instagram_user = api.user(user_search[0].id)
-        p_gooduser.number_of_followers = instagram_user.counts[u'followed_by']
-        p_gooduser.number_of_followings = instagram_user.counts[u'follows']
-        p_gooduser.number_of_media = instagram_user.counts[u'media']
-        p_gooduser.instagram_user_name = instagram_user.username
-        p_gooduser.instagram_user_full_name = instagram_user.full_name
-        p_gooduser.instagram_user_id = instagram_user.id
-        p_gooduser.instagram_profile_picture_URL = instagram_user.profile_picture
-        p_gooduser.instagram_user_bio = instagram_user.bio  
-        p_gooduser.instagram_user_website_URL = instagram_user.website
+        if user_search:
+            try:        
+                
+                instagram_user = api.user(user_search[0].id)
+            except InstagramAPIError as e:
+                buf = "analyze_gooduser: ERR-00004 Instagram API Error %s : %s" % (e.status_code, e.error_message)
+                self.message_user(request, buf, level=messages.WARNING)
+                return None
+            except InstagramClientError as e:
+                buf = "analyze_gooduser: ERR-00005 Instagram Client Error %s : %s" % (e.status_code, e.error_message)
+                self.message_user(request, buf, level=messages.WARNING)
+                return None
+            except IndexError:
+                p_gooduser.instagram_user_name_valid = False
+                buf = "analyze_gooduser: ERR-00006 Instagram search unsuccessful: %s" % (exc_info()[0])    
+                self.message_user(request, buf, level=messages.ERROR)                
+            except:
+                buf = "analyze_gooduser: ERR-00007 Unexpected error: %s" % (exc_info()[0])    
+                self.message_user(request, buf, level=messages.ERROR)
+                raise          
+            p_gooduser.number_of_followers = instagram_user.counts[u'followed_by']
+            p_gooduser.number_of_followings = instagram_user.counts[u'follows']
+            p_gooduser.number_of_media = instagram_user.counts[u'media']
+            p_gooduser.instagram_user_name = instagram_user.username
+            p_gooduser.instagram_user_full_name = instagram_user.full_name
+            p_gooduser.instagram_user_id = instagram_user.id
+            p_gooduser.instagram_profile_picture_URL = instagram_user.profile_picture
+            p_gooduser.instagram_user_bio = instagram_user.bio  
+            p_gooduser.instagram_user_website_URL = instagram_user.website
+        else:
+            p_gooduser.instagram_user_name_valid = False
+            buf = "analyze_gooduser: ERR-00008 Could not find user %s on Instagram." % (p_gooduser.instagram_user_name)
+            self.message_user(request, buf, level=messages.ERROR)    
                
         return p_gooduser    
     
@@ -103,7 +124,12 @@ class GoodUserAdmin(admin.ModelAdmin):
             obj.save()
             l_counter += 1
         
-        self.message_user(request, '%s user(s) processed successfully.' % (l_counter))
+        if l_counter == 1:
+            buf = '1 user processed successfully.'
+        else:
+            buf = '%s user processed successfully.' % (l_counter)
+            
+        self.message_user(request, buf)
     process_gooduser.short_description = 'Process Good User by Instagram API' 
     
     
@@ -183,7 +209,9 @@ class GoodUserAdmin(admin.ModelAdmin):
     ordering = ('user_name',)
     
     '''Add fields from the model by which we want to filter list'''
-    list_filter = ('to_be_processed', 'last_processed_date', 'creation_date')
+    list_filter = ('to_be_processed', 'instagram_user_name_valid', 
+                   'last_processed_date', 'creation_date',
+                   )
     
     '''Add a field from the model by which you want to search'''
     search_fields = ('instagram_user_name', )
@@ -208,7 +236,7 @@ class GoodUserAdmin(admin.ModelAdmin):
                                               'number_of_followers', 'number_of_followings', 
                                               'instagram_user_full_name', 'instagram_profile_picture_URL',
                                               'instagram_user_bio', 'instagram_user_website_URL',
-                                              'instagram_user_id']
+                                              'instagram_user_id', 'instagram_user_name_valid']
                                    }
          ),                
         ('Additional Social Media Information', {'fields': ['twitter_handle', 'facebook_handle',
