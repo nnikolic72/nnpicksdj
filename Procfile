@@ -1,0 +1,1 @@
+web: gunicorn nnpicksdj.wsgi --log-file -
