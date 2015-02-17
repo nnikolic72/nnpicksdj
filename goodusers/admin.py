@@ -21,44 +21,13 @@ class GoodUserAdmin(admin.ModelAdmin):
            Parameters:
            p_gooduser - one GoodUser we want to process
         '''
-        try:
-            user_search = api.user_search(q=p_gooduser.instagram_user_name, count=1)
-        except InstagramAPIError as e:
-            buf = None
-            buf = "analyze_gooduser: ERR-00004 Instagram API Error %s : %s" % (e.status_code, e.error_message)
-            self.message_user(request, buf, level=messages.WARNING)
-            return None
-        except InstagramClientError as e:
-            buf = None
-            buf = "analyze_gooduser: ERR-00005 Instagram Client Error %s : %s" % (e.status_code, e.error_message)
-            self.message_user(request, buf, level=messages.WARNING)
-            return None
-        except:
-            buf = None
-            buf = "analyze_gooduser: ERR-00006 Unexpected error: " + exc_info()[0]    
-            self.message_user(request, buf, level=messages.ERROR)
-            raise          
         
-        if user_search:
-            try:        
+        if api:
+            user_search = api.is_instagram_user_valid(p_gooduser)
+        
+        if user_search == True:
+            instagram_user = api.get_instagram_user(user_search[0].id)
                 
-                instagram_user = api.user(user_search[0].id)
-            except InstagramAPIError as e:
-                buf = "analyze_gooduser: ERR-00004 Instagram API Error %s : %s" % (e.status_code, e.error_message)
-                self.message_user(request, buf, level=messages.WARNING)
-                return None
-            except InstagramClientError as e:
-                buf = "analyze_gooduser: ERR-00005 Instagram Client Error %s : %s" % (e.status_code, e.error_message)
-                self.message_user(request, buf, level=messages.WARNING)
-                return None
-            except IndexError:
-                p_gooduser.instagram_user_name_valid = False
-                buf = "analyze_gooduser: ERR-00006 Instagram search unsuccessful: %s" % (exc_info()[0])    
-                self.message_user(request, buf, level=messages.ERROR)                
-            except:
-                buf = "analyze_gooduser: ERR-00007 Unexpected error: %s" % (exc_info()[0])    
-                self.message_user(request, buf, level=messages.ERROR)
-                raise          
             p_gooduser.number_of_followers = instagram_user.counts[u'followed_by']
             p_gooduser.number_of_followings = instagram_user.counts[u'follows']
             p_gooduser.number_of_media = instagram_user.counts[u'media']
@@ -85,8 +54,7 @@ class GoodUserAdmin(admin.ModelAdmin):
         l_counter = 0
         
         ig_session = InstagramSession()
-        #api = self.init_instagram_API(request)
-        api = ig_session.init_instagram_API()
+        ig_session.init_instagram_API()
         
         for obj in queryset:
             obj.to_be_processed = False
@@ -94,7 +62,7 @@ class GoodUserAdmin(admin.ModelAdmin):
             obj.times_processed = obj.times_processed + 1
             obj.instagram_user_profile_page_URL = self.generate_instagram_profile_page_URL(obj.instagram_user_name)
             obj.iconosquare_user_profile_page_URL = self.generate_iconosquare_profile_page_URL(obj.instagram_user_id)
-            obj = self.analyze_gooduser(request, api, obj)
+            obj = self.analyze_gooduser(request, ig_session, obj)
             obj.save()
             l_counter += 1
         
