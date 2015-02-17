@@ -9,41 +9,12 @@ from instagram.bind import InstagramAPIError, InstagramClientError
 from .models import GoodUser
 from nnpicksdj.settings import INSTAGRAM_API_KEY
 
+from libs.instagram.tools import InstagramSession
 
     
 class GoodUserAdmin(admin.ModelAdmin):
     '''Definition of Admin interface for GoodUsers model'''                                                          
                                                                         
-    def init_instagram_API(self, request):
-        '''Initializes Instagram API session
-        
-        Parameters: -
-        Returns: Instagram API session
-        '''
-        
-        '''Read variable from settings.py'''
-        access_token = INSTAGRAM_API_KEY
-        try:
-            api = InstagramAPI(access_token=access_token)
-        except InstagramAPIError as e:
-            buf = None
-            buf = "process_gooduser: ERR-00001 Instagram API Error %s : %s" % (e.status_code, e.error_message)
-            self.message_user(request, buf, level=messages.WARNING)
-            return None
-        except InstagramClientError as e:
-            buf = None
-            buf = "process_gooduser: ERR-00002 Instagram Client Error %s : %s" % (e.status_code, e.error_message)
-            self.message_user(request, buf, level=messages.WARNING)
-            return None
-        except:
-            buf = None
-            buf = "process_gooduser: ERR-00003 Unexpected error: " + exc_info()[0]    
-            self.message_user(request, buf, level=messages.ERROR)
-            raise  
-        
-        return api        
-        
-    
     def analyze_gooduser(self, request, api, p_gooduser):
         '''Do the processing of Good User with Instagram API
            
@@ -113,7 +84,9 @@ class GoodUserAdmin(admin.ModelAdmin):
         queryset = queryset.filter(to_be_processed=True)
         l_counter = 0
         
-        api = self.init_instagram_API(request)
+        ig_session = InstagramSession()
+        #api = self.init_instagram_API(request)
+        api = ig_session.init_instagram_API()
         
         for obj in queryset:
             obj.to_be_processed = False
