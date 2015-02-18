@@ -4,31 +4,36 @@
     <article>
         <section>
             <div class="clearfix">
-            <section>
-                <h2>@{{good_user.instagram_user_name}}</h2>
-                <figure>
-                    <a href='{{good_user.instagram_user_profile_page_URL}}' target='_blank'><img src='{{good_user.instagram_profile_picture_URL}}'></img></a>
-                    <figcaption>{{good_user.instagram_user_name}} profile picture</figcaption>
-                </figure>
-
-                <h3>Instagram data</h3>
-                <div class='gublockcontainer'>
-	                <div class='gublockheader'>Followers</div>
-	                <div class='gublock'>{{good_user.number_of_followers}}</div>
-                </div>
-                
-                <div class='gublockcontainer'>
-	                <div class='gublockheader'>Followings</div>
-	                <div class='gublock'>{{good_user.number_of_followings}}</div>
-                </div>
-                
-                <div class='gublockcontainer'>                
-	                <div class='gublockheader'>Posts</div>
-	                <div class='gublock'>{{good_user.number_of_media}}</div>
-                </div>
-            </section>
-            </div>
-        </section>
+            {% if good_user.instagram_user_name_valid %}
+	            <section>
+	                <h2>@{{good_user.instagram_user_name}}</h2>
+	                <figure>
+	                    <a href='{{good_user.instagram_user_profile_page_URL}}' target='_blank'><img src='{{good_user.instagram_profile_picture_URL}}'></img></a>
+	                    <figcaption>{{good_user.instagram_user_name}} profile picture</figcaption>
+	                </figure>
+	
+	                <h3>Instagram data</h3>
+	                <div class='gublockcontainer'>
+		                <div class='gublockheader'>Followers</div>
+		                <div class='gublock'>{{good_user.number_of_followers}}</div>
+	                </div>
+	                
+	                <div class='gublockcontainer'>
+		                <div class='gublockheader'>Followings</div>
+		                <div class='gublock'>{{good_user.number_of_followings}}</div>
+	                </div>
+	                
+	                <div class='gublockcontainer'>                
+		                <div class='gublockheader'>Posts</div>
+		                <div class='gublock'>{{good_user.number_of_media}}</div>
+	                </div>
+	            </section>
+	            </div>
+	        </section>
+        {% else %}
+             <p>Instagram username @{{good_user.instagram_user_name}} is not valid.</p>
+             <br><br><br><br><br><br><br><br><br><br>
+        {% endif %}
         <footer>
             <h3>Support this Instagram Talent</h3>
             <p>Bu following, liking and commenting on this talented users photos, you are providing support.</p>

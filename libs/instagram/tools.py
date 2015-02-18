@@ -11,7 +11,7 @@ from instagram import InstagramAPI
 from instagram.bind import InstagramAPIError, InstagramClientError
 
 from nnpicksdj.settings import INSTAGRAM_API_KEY
-from goodusers.models import GoodUser
+#from goodusers.models import GoodUser
 
 
 class InstagramSession():
@@ -29,7 +29,7 @@ class InstagramSession():
         '''Read variable from settings.py'''
         access_token = INSTAGRAM_API_KEY
         try:
-            api = InstagramAPI(access_token=access_token)
+            self.api = InstagramAPI(access_token=access_token)
         except InstagramAPIError as e:
             logging.exception("init_instagram_API: ERR-00001 Instagram API Error %s : %s" % (e.status_code, e.error_message))
             #self.message_user(request, buf, level=messages.WARNING)
@@ -60,10 +60,8 @@ class InstagramSession():
                 logging.exception("is_instagram_user_valid: ERR-00006 Unexpected error: " + str(exc_info()[0]))    
                 raise               
         
-        if user_search:
-            return True
-        else:
-            return False
+        return user_search
+
         
     def get_instagram_user(self, user_search_result):
         '''Get Instagram user
@@ -79,7 +77,7 @@ class InstagramSession():
         
         if self.api:        
             try:         
-                instagram_user = self.api.user(user_search_result[0].id)
+                instagram_user = self.api.user(user_search_result)
             except InstagramAPIError as e:
                 logging.exception("get_instagram_user: ERR-00004 Instagram API Error %s : %s" % (e.status_code, e.error_message))
 
@@ -88,7 +86,13 @@ class InstagramSession():
             except IndexError:
                 logging.exception("get_instagram_user: ERR-00006 Instagram search unsuccessful: %s" % (exc_info()[0]))                
             except:
-                logging.exception("get_instagram_user: ERR-00007 Unexpected error: %s" % (exc_info()[0]))    
+                logging.exception("get_instagram_user: ERR-00007 Unexpected error: %s" % (exc_info()[0]))
+                raise("get_instagram_user: ERR-00007 Unexpected error: %s" % (exc_info()[0]))    
  
             
-        return instagram_user         
+        return instagram_user   
+    
+    def get_api_limits(self):
+        '''Returns a tuple of (Instagram AOI limit remaining, Instagram API limit)'''
+        
+        return self.api.x_ratelimit_remaining, self.api.x_ratelimit      

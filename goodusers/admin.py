@@ -1,19 +1,17 @@
-from sys import exc_info
-
 from django.contrib import admin, messages
 from django.utils import timezone
 
-from instagram import InstagramAPI
-from instagram.bind import InstagramAPIError, InstagramClientError
-
 from .models import GoodUser
-from nnpicksdj.settings import INSTAGRAM_API_KEY
 
 from libs.instagram.tools import InstagramSession
 
     
 class GoodUserAdmin(admin.ModelAdmin):
     '''Definition of Admin interface for GoodUsers model'''                                                          
+    
+    l_instagram_api_limit = 0
+    l_instagram_api_limit_start = 0
+    l_instagram_api_limit_end = 0
                                                                         
     def analyze_gooduser(self, request, api, p_gooduser):
         '''Do the processing of Good User with Instagram API
@@ -25,7 +23,7 @@ class GoodUserAdmin(admin.ModelAdmin):
         if api:
             user_search = api.is_instagram_user_valid(p_gooduser)
         
-        if user_search == True:
+        if user_search:
             instagram_user = api.get_instagram_user(user_search[0].id)
                 
             p_gooduser.number_of_followers = instagram_user.counts[u'followed_by']
@@ -56,6 +54,9 @@ class GoodUserAdmin(admin.ModelAdmin):
         ig_session = InstagramSession()
         ig_session.init_instagram_API()
         
+        self.l_instagram_api_limit_start, self.l_instagram_api_limit = \
+             ig_session.get_api_limits()
+        
         for obj in queryset:
             obj.to_be_processed = False
             obj.last_processed_date = timezone.datetime.now()
@@ -65,12 +66,22 @@ class GoodUserAdmin(admin.ModelAdmin):
             obj = self.analyze_gooduser(request, ig_session, obj)
             obj.save()
             l_counter += 1
-        
+
+        self.l_instagram_api_limit_end, self.l_instagram_api_limit = \
+             ig_session.get_api_limits()
+                     
         if l_counter == 1:
-            buf = '1 user processed successfully.'
+            buf = '1 user processed successfully. Instagram API (%s - %s/%s)' % \
+                    (self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
+                     self.l_instagram_api_limit
+                     )
         else:
-            buf = '%s user processed successfully.' % (l_counter)
-            
+            buf = '%s user processed successfully.  Instagram API (%s - %s/%s)' % \
+                    (l_counter, self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
+                     self.l_instagram_api_limit
+                     )
+        
+    
         self.message_user(request, buf)
     process_gooduser.short_description = 'Process Good User by Instagram API' 
     

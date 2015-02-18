@@ -10,12 +10,13 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from ConfigParser import RawConfigParser
+import re
+from ConfigParser import ConfigParser
 #from django.conf.global_settings import TEMPLATE_DIRS
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-config = RawConfigParser()
+config = ConfigParser()
 config.read(BASE_DIR + '\\settings.ini')
 
 DATABASE_USER = config.get('database', 'DATABASE_USER')
@@ -72,6 +73,12 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'nnpicksdj.urls'
 
 WSGI_APPLICATION = 'nnpicksdj.wsgi.application'
+
+IGNORABLE_404_URLS = (
+    re.compile(r'^/apple-touch-icon.*\.png$'),
+    re.compile(r'^/favicon\.ico$'),
+    re.compile(r'^/robots\.txt$'),
+)
 
 '''Load settings_local.py from top-level project directory if present. 
    Used to override settings on the project level.
