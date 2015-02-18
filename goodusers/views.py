@@ -3,6 +3,7 @@ from django.http import Http404
 from django.views import generic
 
 from .models import GoodUser
+from photos.models import Photo
 
 # Create your views here.
 class IndexView(generic.ListView):
@@ -25,8 +26,14 @@ def detail(request, p_instagram_user_name):
     except GoodUser.DoesNotExist:
         raise Http404('No Instagram Talents with username %s found in our database.' % (p_instagram_user_name))
     
+    try:
+        photos = Photo.objects.filter(good_user_id=good_user.pk)
+    except Photo.DoesNotExist:
+        photos = None
+        pass
+        #raise Http404('No Instagram photos of username %s found in our database.' % (p_instagram_user_name))
     
     return render(request, 'goodusers/goodusers_detail.html', 
-                  {'good_user': good_user, }
+                  {'good_user': good_user, 'photos': photos}
                   )
     

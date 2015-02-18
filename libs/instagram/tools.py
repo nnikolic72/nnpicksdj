@@ -64,6 +64,42 @@ class InstagramSession():
         
         return user_search
 
+    def is_instagram_photo_valid(self, p_photo_id):
+        '''Checks if Instagram photo exists'''
+        
+        try:
+            l_photo = self.api.media(media_id = p_photo_id)
+        except InstagramAPIError as e:
+            logging.exception("is_instagram_photo_valid: ERR-00018 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+
+        except InstagramClientError as e:
+            logging.exception("is_instagram_photo_valid: ERR-00019 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+            return None
+        except:
+            logging.exception("is_instagram_photo_valid: ERR-00020 Unexpected error: " + str(exc_info()[0]))    
+            raise("is_instagram_photo_valid: ERR-00020 Unexpected error: " + str(exc_info()[0]))
+        
+        if l_photo:
+            return True
+        else:
+            return False      
+        
+    def get_instagram_photo_info(self, p_photo_id):
+        '''returns Instagram photo information'''
+        
+        try:
+            l_photo = self.api.media(media_id = p_photo_id)
+        except InstagramAPIError as e:
+            logging.exception("get_instagram_photo_info: ERR-00021 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+
+        except InstagramClientError as e:
+            logging.exception("get_instagram_photo_info: ERR-00022 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+            return None
+        except:
+            logging.exception("get_instagram_photo_info: ERR-00023 Unexpected error: " + str(exc_info()[0]))    
+            raise("get_instagram_photo_info: ERR-00023 Unexpected error: " + str(exc_info()[0]))
+        
+        return l_photo
         
     def get_instagram_user(self, user_search_result):
         '''Get Instagram user
@@ -81,15 +117,15 @@ class InstagramSession():
             try:         
                 instagram_user = self.api.user(user_search_result)
             except InstagramAPIError as e:
-                logging.exception("get_instagram_user: ERR-00004 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+                logging.exception("get_instagram_user: ERR-00014 Instagram API Error %s : %s" % (e.status_code, e.error_message))
 
             except InstagramClientError as e:
-                logging.exception("get_instagram_user: ERR-00005 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+                logging.exception("get_instagram_user: ERR-00015 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
             except IndexError:
-                logging.exception("get_instagram_user: ERR-00006 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+                logging.exception("get_instagram_user: ERR-00016 Instagram search unsuccessful: %s" % (exc_info()[0]))                
             except:
-                logging.exception("get_instagram_user: ERR-00007 Unexpected error: %s" % (exc_info()[0]))
-                raise("get_instagram_user: ERR-00007 Unexpected error: %s" % (exc_info()[0]))    
+                logging.exception("get_instagram_user: ERR-00017 Unexpected error: %s" % (exc_info()[0]))
+                raise("get_instagram_user: ERR-00017 Unexpected error: %s" % (exc_info()[0]))    
  
             
         return instagram_user   

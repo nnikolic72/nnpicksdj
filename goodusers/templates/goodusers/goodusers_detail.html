@@ -6,8 +6,9 @@
             <div class="clearfix">
             {% if good_user.instagram_user_name_valid %}
 	            <section>
-	                <h2>@{{good_user.instagram_user_name}}</h2>
-	                <figure>
+	                <h2 class='textaligncenter'>@{{good_user.instagram_user_name}}</h2>
+	                
+	                <figure class='textaligncenter'>
 	                    <a href='{{good_user.instagram_user_profile_page_URL}}' target='_blank'><img src='{{good_user.instagram_profile_picture_URL}}'></img></a>
 	                    <figcaption>{{good_user.instagram_user_name}} profile picture</figcaption>
 	                </figure>
@@ -29,6 +30,17 @@
 	                </div>
 	            </section>
 	            </div>
+	            
+	            {% if photos %}
+	                <div class="clearfix">
+	                <h3>Top Photos By @{{good_user.instagram_user_name}}</h3>
+	                    {% for photo in photos %}
+	                        <img class='igthumbnail' src='{{ photo.instagram_thumbnail_URL }}'></img>
+	                    {% endfor %} 
+	                </div>
+	            {% else %}
+	                <p>No photos by @{{good_user.instagram_user_name}} in our database</p>
+	            {% endif %}
 	        </section>
         {% else %}
              <p>Instagram username @{{good_user.instagram_user_name}} is not valid.</p>

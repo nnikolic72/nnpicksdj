@@ -1,26 +1,14 @@
 from django.contrib import admin, messages
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 
 from .models import GoodUser
-from photos.models import Photo
+
 
 from libs.instagram.tools import InstagramSession
 
 
-class PhotoAdmin(admin.ModelAdmin):
-    '''Photos model Admin definition'''
-    
-    list_display = ('instagram_photo_id', 'instagram_user_id', 'good_user_id',)
-    
-    fieldsets = [
-        ('General Information', {'fields': ['instagram_photo_id', 'instagram_user_id',
-                                            'good_user_id', 
-
-                                            ]
-                                 }
-         ),
-    ]
-    
+   
 class GoodUserAdmin(admin.ModelAdmin):
     '''Definition of Admin interface for GoodUsers model'''                                                          
     
@@ -50,6 +38,7 @@ class GoodUserAdmin(admin.ModelAdmin):
             p_gooduser.instagram_profile_picture_URL = instagram_user.profile_picture
             p_gooduser.instagram_user_bio = instagram_user.bio  
             p_gooduser.instagram_user_website_URL = instagram_user.website
+            p_gooduser.instagram_user_name_valid = True
         else:
             p_gooduser.instagram_user_name_valid = False
             buf = "analyze_gooduser: ERR-00008 Could not find user %s on Instagram." % (p_gooduser.instagram_user_name)
@@ -225,4 +214,3 @@ class GoodUserAdmin(admin.ModelAdmin):
     
 # Register your models here.
 admin.site.register(GoodUser, GoodUserAdmin)
-admin.site.register(Photo, PhotoAdmin)

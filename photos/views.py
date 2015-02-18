@@ -9,7 +9,7 @@ class IndexView(generic.ListView):
     '''Generic Django ListView extension - displays a list of Photos'''
     
     template_name = 'photos/index.html'
-    context_object_name = 'goodusers_list'
+    context_object_name = 'photos_list'
     
     def get_queryset(self):
         return Photo.objects.order_by('instagram_photo_id')
