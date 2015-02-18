@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <article>
+        <section>
+            <h2>List of Instagram photos</h2>
+{% if photos_list %}
+    <ul>
+        {% for photo in photos_list %}
+        <li><a href='{% url 'details' photo.instagram_user_name %}'>{{photo.instagram_user_name}}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+<p>No Instagram photos available in our database.</p>
+
+{% endif %}
+        </section>
+        <footer>
+            <h3>Know an Instagram talent?</h3>
+            <p>Add your suggestions - let us know which Instagram users you find talented!</p>
+        </footer>
+    </article>
+
+    <aside>
+        <h3>Support Talented Users of Instagram Web Site</h3>
+        <p>Please spread the word!</p>
+    </aside>
+    <aside>
+        <h3>Browes Talented users by category</h3>
+        <p>Category1</p>
+    </aside>
+{% endblock %}                  

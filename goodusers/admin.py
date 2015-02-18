@@ -2,9 +2,24 @@ from django.contrib import admin, messages
 from django.utils import timezone
 
 from .models import GoodUser
+from photos.models import Photo
 
 from libs.instagram.tools import InstagramSession
 
+
+class PhotoAdmin(admin.ModelAdmin):
+    '''Photos model Admin definition'''
+    
+    list_display = ('instagram_photo_id', 'instagram_user_id', 'good_user_id',)
+    
+    fieldsets = [
+        ('General Information', {'fields': ['instagram_photo_id', 'instagram_user_id',
+                                            'good_user_id', 
+
+                                            ]
+                                 }
+         ),
+    ]
     
 class GoodUserAdmin(admin.ModelAdmin):
     '''Definition of Admin interface for GoodUsers model'''                                                          
@@ -210,3 +225,4 @@ class GoodUserAdmin(admin.ModelAdmin):
     
 # Register your models here.
 admin.site.register(GoodUser, GoodUserAdmin)
+admin.site.register(Photo, PhotoAdmin)

@@ -3,8 +3,10 @@ Created on Feb 17, 2015
 
 @author: Nenad
 '''
-
+from __future__ import division
 from sys import exc_info
+
+import numpy as np
 import logging
 
 from instagram import InstagramAPI
@@ -96,3 +98,73 @@ class InstagramSession():
         '''Returns a tuple of (Instagram AOI limit remaining, Instagram API limit)'''
         
         return self.api.x_ratelimit_remaining, self.api.x_ratelimit      
+
+
+    
+class BestPhotos:
+    '''Find best photos of instgaram user'''
+    l_user_has_photos = True
+    
+    def __init__(self, instgram_user_id, top_n_photos, search_photos_amount):
+        self.l_instgram_user_id = instgram_user_id
+        self.l_top_n_photos = top_n_photos
+        self.l_search_photos_amount = search_photos_amount
+        self.l_instagram_user_id = instgram_user_id
+        
+    def linreg(self, x, y):
+        '''Does linear regression parameter calculation'''
+        
+        regression = np.polyfit(x, y, 2) 
+        return regression
+    
+    def prediction(self, regression, point):
+        '''Returns prediction for given argument(number of likes)'''
+        
+        y = regression[0]*point + regression[1]
+        return y   
+    
+    def get_instagram_photos(self):
+        '''Retreive l_search_photos_amount photos of given Instagram user
+        l_instgram_user_id
+        
+        '''
+        
+        try:
+            recent_media, x_next = self.api.user_recent_media(user_id=self.l_instgram_user_id)
+        except InstagramAPIError as e:
+            logging.exception("get_instagram_photos: ERR-00008 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+
+        except InstagramClientError as e:
+            logging.exception("get_instagram_photos: ERR-00009 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+        except IndexError:
+            logging.exception("get_instagram_photos: ERR-00010 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+        except:
+            logging.exception("get_instagram_photos: ERR-00011 Unexpected error: %s" % (exc_info()[0]))
+            raise("get_instagram_user: ERR-00011 Unexpected error: %s" % (exc_info()[0]))    
+
+        if recent_media and x_next:     
+            while x_next:
+                try:     
+                    media_feed, x_next = self.api.user_recent_media(with_next_url = x_next)
+                except InstagramAPIError as e:
+                    logging.exception("get_instagram_photos: ERR-00012 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+        
+                except InstagramClientError as e:
+                    logging.exception("get_instagram_photos: ERR-00013 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+                except IndexError:
+                    logging.exception("get_instagram_photos: ERR-000114 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+                except:
+                    logging.exception("get_instagram_photos: ERR-00015 Unexpected error: %s" % (exc_info()[0]))
+                    raise("get_instagram_user: ERR-00015 Unexpected error: %s" % (exc_info()[0]))    
+
+                    
+                recent_media.extend(media_feed)
+                if len (recent_media) >= self.l_search_photos_amount:
+                    break
+        else:
+            self.l_user_has_photos = False
+        
+        if self.l_user_has_photos:    
+            self.l_latest_photos = recent_media
+        else:
+            self.l_user_has_photos = None
