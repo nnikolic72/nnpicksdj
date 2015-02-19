@@ -3,9 +3,9 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 from .models import GoodUser
+from photos.models import Photo
 
-
-from libs.instagram.tools import InstagramSession
+from libs.instagram.tools import InstagramSession, BestPhotos
 
 
    
@@ -15,6 +15,9 @@ class GoodUserAdmin(admin.ModelAdmin):
     l_instagram_api_limit = 0
     l_instagram_api_limit_start = 0
     l_instagram_api_limit_end = 0
+    
+    l_find_top_n_photos = 10
+    l_search_last_photos = 500
                                                                         
     def analyze_gooduser(self, request, api, p_gooduser):
         '''Do the processing of Good User with Instagram API
@@ -54,6 +57,7 @@ class GoodUserAdmin(admin.ModelAdmin):
         
         queryset = queryset.filter(to_be_processed=True)
         l_counter = 0
+        l_counter_pics = 0
         
         ig_session = InstagramSession()
         ig_session.init_instagram_API()
@@ -67,22 +71,49 @@ class GoodUserAdmin(admin.ModelAdmin):
             obj.times_processed = obj.times_processed + 1
             obj.instagram_user_profile_page_URL = self.generate_instagram_profile_page_URL(obj.instagram_user_name)
             obj.iconosquare_user_profile_page_URL = self.generate_iconosquare_profile_page_URL(obj.instagram_user_id)
+            '''get Instagram user data'''
             obj = self.analyze_gooduser(request, ig_session, obj)
+            
+            '''Analyze photos of this user'''
+            l_best_photos = BestPhotos(obj.instagram_user_id, self.l_find_top_n_photos, 
+                                       self.l_search_last_photos, ig_session
+                                       )
+            l_best_photos.get_instagram_photos()
+            l_top_photos = None
+            if l_best_photos.l_user_has_photos:
+                l_best_photos.get_top_photos()
+                l_top_photos = l_best_photos.top_photos_list
+            
             obj.save()
+            
+            '''Delete old best photos for this user'''
+            Photo.objects.filter(good_user_id=obj.pk).delete()
+            
+            '''Insert new best photos for this user'''
+            if l_top_photos:
+                for val in l_top_photos:
+                    rec = Photo(instagram_photo_id=val[0], photo_rating=val[1], good_user_id=obj)
+                    rec.save()
+                    l_counter_pics += 1
+
+                                     
+            
             l_counter += 1
 
         self.l_instagram_api_limit_end, self.l_instagram_api_limit = \
              ig_session.get_api_limits()
+             
+
                      
         if l_counter == 1:
-            buf = '1 user processed successfully. Instagram API (%s - %s/%s)' % \
-                    (self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
-                     self.l_instagram_api_limit
+            buf = '1 user processed successfully (%s photos). Instagram API (%s - %s/%s / diff: %s)' % \
+                    (l_counter_pics, self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
+                     self.l_instagram_api_limit, (int(self.l_instagram_api_limit_start) - int(self.l_instagram_api_limit_end))
                      )
         else:
-            buf = '%s user processed successfully.  Instagram API (%s - %s/%s)' % \
-                    (l_counter, self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
-                     self.l_instagram_api_limit
+            buf = '%s user processed successfully (%s photos).  Instagram API (%s - %s/%s / diff: %s)' % \
+                    (l_counter, l_counter_pics, self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
+                     self.l_instagram_api_limit, (int(self.l_instagram_api_limit_start) - int(self.l_instagram_api_limit_end))
                      )
         
     
