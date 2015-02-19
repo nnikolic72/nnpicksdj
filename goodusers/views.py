@@ -27,7 +27,7 @@ def detail(request, p_instagram_user_name):
         raise Http404('No Instagram Talents with username %s found in our database.' % (p_instagram_user_name))
     
     try:
-        photos = Photo.objects.filter(good_user_id=good_user.pk)
+        photos = Photo.objects.filter(good_user_id=good_user.pk).order_by('-photo_rating')
     except Photo.DoesNotExist:
         photos = None
         pass
