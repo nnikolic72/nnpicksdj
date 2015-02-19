@@ -5,6 +5,7 @@ Created on Feb 17, 2015
 '''
 from __future__ import division
 from sys import exc_info
+from datetime import datetime
 
 import numpy as np
 import logging
@@ -32,6 +33,9 @@ class InstagramSession():
         access_token = INSTAGRAM_API_KEY
         try:
             self.api = InstagramAPI(access_token=access_token)
+            
+            '''Perform simple api search to set x_ratelimit_remaining'''
+            temp = self.api.user_search(q='instagram', count=1)
         except InstagramAPIError as e:
             logging.exception("init_instagram_API: ERR-00001 Instagram API Error %s : %s" % (e.status_code, e.error_message))
             #self.message_user(request, buf, level=messages.WARNING)
@@ -141,11 +145,15 @@ class BestPhotos:
     '''Find best photos of instgaram user'''
     l_user_has_photos = True
     
-    def __init__(self, instgram_user_id, top_n_photos, search_photos_amount):
+    def __init__(self, instgram_user_id, top_n_photos, search_photos_amount, instagram_api):
         self.l_instgram_user_id = instgram_user_id
         self.l_top_n_photos = top_n_photos
         self.l_search_photos_amount = search_photos_amount
         self.l_instagram_user_id = instgram_user_id
+        self.l_latest_photos = None
+        self.instagram_session = instagram_api
+        '''Resulting list of Instagram photo id's, length of max top_n_photos'''
+        self.top_photos_list = []
         
     def linreg(self, x, y):
         '''Does linear regression parameter calculation'''
@@ -163,10 +171,12 @@ class BestPhotos:
         '''Retreive l_search_photos_amount photos of given Instagram user
         l_instgram_user_id
         
+        Returns:
+        Nothing
         '''
         
         try:
-            recent_media, x_next = self.api.user_recent_media(user_id=self.l_instgram_user_id)
+            recent_media, x_next = self.instagram_session.api.user_recent_media(user_id=self.l_instgram_user_id)
         except InstagramAPIError as e:
             logging.exception("get_instagram_photos: ERR-00008 Instagram API Error %s : %s" % (e.status_code, e.error_message))
 
@@ -181,7 +191,7 @@ class BestPhotos:
         if recent_media and x_next:     
             while x_next:
                 try:     
-                    media_feed, x_next = self.api.user_recent_media(with_next_url = x_next)
+                    media_feed, x_next = self.instagram_session.api.user_recent_media(with_next_url = x_next)
                 except InstagramAPIError as e:
                     logging.exception("get_instagram_photos: ERR-00012 Instagram API Error %s : %s" % (e.status_code, e.error_message))
         
@@ -204,3 +214,71 @@ class BestPhotos:
             self.l_latest_photos = recent_media
         else:
             self.l_user_has_photos = None
+            
+
+    def get_top_photos(self):
+        '''Using linear regression find top photos in media pool of Instagram UserWarning
+        
+        Parameters:
+        p_number_of_photos - top X photos to find
+        p_media - Instagram API media object - list of Instagram photos of the user
+        '''
+        
+        if self.l_user_has_photos:
+            '''Convert Instagram media object to list'''
+            l_media_list = []
+            for x_media in self.l_latest_photos:
+                l_time_delta = datetime.today() - x_media.created_time
+                l_media_list.append([x_media.id, x_media.like_count, 
+                                                    x_media.comment_count, 
+                                                    l_time_delta.days,
+                                                    0 # Error - to be calculated
+                                                    ]
+                                                   )
+            #media_cnt = len(l_media_list)    
+            '''Normalize the number of likes and days'''
+            l_max_likes = max(l[1] for l in l_media_list)
+            l_min_likes = min(l[1] for l in l_media_list)
+            l_max_days = max(l[3] for l in l_media_list)
+            l_min_days = min(l[3] for l in l_media_list)
+                        
+            l_normalized_media_list = []
+            for val in l_media_list:
+                val[1] = (val[1] - l_min_likes) / (l_max_likes - l_min_likes)
+                val[3] = (val[3] - l_min_days) / (l_max_days - l_min_days)
+                l_normalized_media_list.append(val)
+            
+            '''Sort media by date'''    
+            l_normalized_media_list = sorted(l_normalized_media_list, key=lambda x: x[3], reverse = True)
+            
+            '''Extract feature Date and label Likes to calculate linear regression parameters''' 
+            l_linreg_params = []
+            l_linreg_results = []
+            for val in l_normalized_media_list:
+                l_linreg_params.extend([val[3]]) # days
+                l_linreg_results.extend([val[1]]) # likes
+                
+            '''Calculate linear regression quadratic function based on actual likes'''
+            l_regression = np.polyfit(l_linreg_params, l_linreg_results, 2)
+            l_polynomial = np.poly1d(l_regression)
+            l_predictions = l_polynomial(l_linreg_params)
+            
+            '''Find errors, and write them in l_normalized_media_list'''
+            l_cnt = 0
+            for val in l_predictions:
+                l_error = l_linreg_results[l_cnt] - val
+                l_normalized_media_list[l_cnt][4] = l_error
+                l_cnt += 1
+                
+            '''Sort by error value - descending'''
+            l_normalized_media_list = sorted(l_normalized_media_list, key=lambda x: x[4], reverse=True)
+            
+            l_cnt = 1
+            l_media_cnt = len(l_normalized_media_list) 
+            for val in l_normalized_media_list:
+                self.top_photos_list.append([val[0], val[4]])
+                if (l_cnt >= self.l_top_n_photos) or (l_cnt >= l_media_cnt):
+                    break
+                l_cnt += 1
+
+                

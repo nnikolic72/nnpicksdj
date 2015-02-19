@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext as _
 
 from .models import Photo
+from goodusers.models import GoodUser
 from libs.instagram.tools import InstagramSession
 
 # Register your models here.
@@ -52,6 +53,7 @@ class PhotoAdmin(admin.ModelAdmin):
         
         for obj in queryset:
             obj = self.get_instagram_photo_info(ig_session, obj)
+            obj.instagram_photo_processed = True
             obj.save()
             l_counter += 1
             
@@ -60,26 +62,34 @@ class PhotoAdmin(admin.ModelAdmin):
              ig_session.get_api_limits()
                      
         if l_counter == 1:
-            buf = '1 photo processed successfully. Instagram API (%s - %s/%s)' % \
+            buf = '1 photo processed successfully. Instagram API (%s - %s/%s / diff: %s)' % \
                     (self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
-                     self.l_instagram_api_limit
+                     self.l_instagram_api_limit, (int(self.l_instagram_api_limit_start) - int(self.l_instagram_api_limit_end))
                      )
         else:
-            buf = '%s photos processed successfully.  Instagram API (%s - %s/%s)' % \
+            buf = '%s photos processed successfully.  Instagram API (%s - %s/%s / diff: %s)' % \
                     (l_counter, self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
-                     self.l_instagram_api_limit
+                     self.l_instagram_api_limit, (int(self.l_instagram_api_limit_start) - int(self.l_instagram_api_limit_end))
                      )    
         self.message_user(request, buf)
     process_photos_by_instagram_api.short_description = 'Process photos by Instagram API'        
             
-    list_display = ('instagram_photo_id', 'good_user_id', 'admin_thumbnail', )
+    list_display = ('instagram_photo_id', 'good_user_id', 'photo_rating', 'admin_thumbnail', )
+    
+    list_filter = ('instagram_photo_processed', 'good_user_id', )
+    
+    ordering = ('good_user_id', '-photo_rating', )
+    
+    '''Search by foreign key example!'''
+    search_fields = ('good_user_id__instagram_user_name', )
     
     fieldsets = [
         ('General Information', {'fields': ['instagram_photo_id', 
                                             'good_user_id',
                                             'instagram_caption',
                                             'instagram_tags',
-                                            'instagram_photo_valid'
+                                            'instagram_photo_valid',
+                                            'photo_rating'
                                             ]
                                  }
          ),

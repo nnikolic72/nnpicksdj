@@ -35,6 +35,11 @@ class Photo(models.Model):
     instagram_tags = models.TextField(max_length=1000, null=True, blank=True)
     instagram_created_time = models.CharField(max_length=100, null=True, blank=True)
     instagram_photo_valid = models.BooleanField(default=True, null=False, blank=True)
+    instagram_photo_processed = models.BooleanField(default=False, null=False, blank=True)
+    photo_rating = models.DecimalField(null=True, blank=True, default = 0, max_digits=9,
+                                       decimal_places = 2,
+                                       help_text='Photo rating relative to users other photos'
+                                       )
                
     good_user_id = models.ForeignKey(GoodUser, null=True)
     instagram_likes = models.IntegerField(default=0, null=True, blank=True)

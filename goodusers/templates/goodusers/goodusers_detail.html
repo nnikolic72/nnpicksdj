@@ -12,31 +12,42 @@
 	                    <a href='{{good_user.instagram_user_profile_page_URL}}' target='_blank'><img src='{{good_user.instagram_profile_picture_URL}}'></img></a>
 	                    <figcaption>{{good_user.instagram_user_name}} profile picture</figcaption>
 	                </figure>
-	
-	                <h3>Instagram data</h3>
-	                <div class='gublockcontainer'>
-		                <div class='gublockheader'>Followers</div>
-		                <div class='gublock'>{{good_user.number_of_followers}}</div>
-	                </div>
 	                
-	                <div class='gublockcontainer'>
-		                <div class='gublockheader'>Followings</div>
-		                <div class='gublock'>{{good_user.number_of_followings}}</div>
-	                </div>
-	                
-	                <div class='gublockcontainer'>                
-		                <div class='gublockheader'>Posts</div>
-		                <div class='gublock'>{{good_user.number_of_media}}</div>
+	                <div class='textaligncenter'>
+		                <h3>Instagram data</h3>
+		                <div class='gublockcontainer'>
+			                <div class='gublockheader'>Followers</div>
+			                <div class='gublock'>{{good_user.number_of_followers}}</div>
+		                </div>
+		                
+		                <div class='gublockcontainer'>
+			                <div class='gublockheader'>Followings</div>
+			                <div class='gublock'>{{good_user.number_of_followings}}</div>
+		                </div>
+		                
+		                <div class='gublockcontainer'>                
+			                <div class='gublockheader'>Posts</div>
+			                <div class='gublock'>{{good_user.number_of_media}}</div>
+		                </div>
 	                </div>
 	            </section>
 	            </div>
 	            
 	            {% if photos %}
 	                <div class="clearfix">
-	                <h3>Top Photos By @{{good_user.instagram_user_name}}</h3>
-	                    {% for photo in photos %}
-	                        <img class='igthumbnail' src='{{ photo.instagram_thumbnail_URL }}'></img>
-	                    {% endfor %} 
+		                <div class="textaligncenter">
+		                <h3>Top Photos</h3>
+		                    {% for photo in photos %}
+		                    <div class='igthumbnailcontainer'>
+		                        <div>
+		                            <a href='{{ photo.instagram_link_URL }}' target='_blank'><img src='{{ photo.instagram_thumbnail_URL }}'></img></a>
+		                        </div>
+		                        <div class='iglikestxt'>
+		                        Likes: {{ photo.instagram_likes }}
+		                        </div>
+		                    </div>
+		                    {% endfor %} 
+		                </div>
 	                </div>
 	            {% else %}
 	                <p>No photos by @{{good_user.instagram_user_name}} in our database</p>
