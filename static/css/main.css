@@ -1,5 +1,12 @@
 /*! HTML5 Boilerplate v5.0 | MIT License | http://h5bp.com/ */
 
+
+.color-primary-0 { color: #D38047 }	/* Main Primary color */
+.color-primary-1 { color: #FFC8A3 }
+.color-primary-2 { color: #F5A873 }
+.color-primary-3 { color: #B56026 }
+.color-primary-4 { color: #8F410D } /* Header color */
+
 html {
     color: #222;
     font-size: 1em;
@@ -70,18 +77,18 @@ body {
    =================== */
 
 .header-container {
-    border-bottom: 20px solid #e44d26;
+    border-bottom: 20px solid #8F410D;
 }
 
 .footer-container,
 .main aside {
-    border-top: 20px solid #e44d26;
+    border-top: 20px solid #8F410D;
 }
 
 .header-container,
 .footer-container,
 .main aside {
-    background: #f16529;
+    background: #D38047;
 }
 
 .title {
@@ -108,7 +115,7 @@ nav a {
     font-weight: bold;
 
     color: white;
-    background: #e44d26;
+    background: #8F410D;
 }
 
 nav a:hover,
@@ -170,7 +177,7 @@ nav a:hover {
 
 .gublock, .gublockheader {
     display: block;
-    background-color: #f16529;
+    background-color: #D38047;
     padding: 20px;
     font-size: 15px; 
 
@@ -181,7 +188,7 @@ nav a:hover {
 }
 
 .gublockheader {
-    background-color: #e44d26;
+    background-color: #8F410D;
     padding: 10px;
 }
 
