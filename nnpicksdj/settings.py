@@ -87,13 +87,13 @@ IGNORABLE_404_URLS = (
    Everyone can use this file as a local-only file, without pushing to remote
    repository.
 '''
-try:
-    from settings_local import DATABASE_ENGINE, DATABASE_NAME, DATABASE_USER, \
-                               DATABASE_PASSWORD, DATABASE_HOST, DATABASE_PORT
+#try:
+#    from settings_local import DATABASE_ENGINE, DATABASE_NAME, DATABASE_USER, \
+#                               DATABASE_PASSWORD, DATABASE_HOST, DATABASE_PORT
     
     #pass
-except:
-    pass
+#except:
+#    pass
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
