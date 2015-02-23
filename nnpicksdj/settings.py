@@ -71,8 +71,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_auth',
     'goodusers',
     'photos',
+    'iguserauth'
 )
 
 
@@ -88,10 +90,18 @@ MIDDLEWARE_CLASSES = (
 
 
 AUTHENTICATION_BACKENDS = (
-
+    'social_auth.backends.contrib.instagram.InstagramBackend',
     'django.contrib.auth.backends.ModelBackend',                      
 )
 
+
+INSTAGRAM_CLIENT_ID = '84b86efe6abb4da9b6fec960f5791239'
+INSTAGRAM_CLIENT_SECRET = 'b9444a35849444ec8c6c1fd586491e21'
+INSTAGRAM_AUTH_EXTRA_ARGUMENTS = {'scope': 'likes comments relationships'}
+
+LOGIN_URL          = '/login/'
+LOGIN_REDIRECT_URL = '/login/'
+LOGIN_ERROR_URL    = '/login-error/'
 
 LOGGING = {
     'version': 1,

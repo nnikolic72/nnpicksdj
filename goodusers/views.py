@@ -16,7 +16,6 @@ class IndexView(generic.ListView):
         return GoodUser.objects.order_by('user_name')
 
 
-
 def detail(request, p_instagram_user_name):
     '''View Good User Details'''
     
