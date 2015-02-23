@@ -3,6 +3,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.api import get_messages
+from django.contrib.auth import logout as auth_logout
 #from django.contrib.auth import logout as auth_logout
 
 # Create your views here.
@@ -28,6 +29,12 @@ def error(request):
                                          'messages': messages},
                                RequestContext(request))
     
+
+def logout(request):
+    """Logs out user"""
+    auth_logout(request)
+    return HttpResponseRedirect('/')
+
         
 @login_required
 def done(request):

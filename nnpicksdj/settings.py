@@ -143,6 +143,9 @@ SOCIAL_AUTH_PIPELINE = (
     'iguserauth.pipeline.first_name',
 )
 '''
+
+TEMPLATE_CONTEXT_PROCESSORS += ('django.core.context_processors.request',)
+
 ROOT_URLCONF = 'nnpicksdj.urls'
 
 WSGI_APPLICATION = 'nnpicksdj.wsgi.application'
