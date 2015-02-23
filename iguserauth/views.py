@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.api import get_messages
@@ -8,8 +8,6 @@ from django.contrib.messages.api import get_messages
 # Create your views here.
 from social_auth import __version__ as version
 
-from libs.instagram.tools import InstagramSession
-from .models import IGUserAuth
 
 
 
@@ -22,31 +20,13 @@ def home(request):
         return render_to_response('iguserauth/home.html', {'version': version},
                                   RequestContext(request))
 
-def ig(request):
-    """Error view"""
-    
-    code = request.GET.get('code', '')
-    if code:
-        ig_session = InstagramSession()
-        api = ig_session.api
-        token = api.exchange_code_for_access_token(code)
-        info = token[1]
-        users = IGUserAuth.objects.filter(userid=info['id'])
-        if users:
-            user = users[0]
-            user.access_token = token[0]
-        else:
-            user = IGUserAuth(access_token=token[0],
-                                 userid=info['id'],
-                                 username=info['username'])
-        user.save()
-        return render_to_response('iguserauth/index.html', {'code': code},
-                                  context_instance=RequestContext(request))
-    else:        
-        messages = get_messages(request)
-        return render_to_response('iguserauth/error.html', {'version': version,
-                                             'messages': messages, 'code': code, 'request': request},
-                                   RequestContext(request))
+def error(request):
+    """error view"""
+      
+    messages = get_messages(request)
+    return render_to_response('iguserauth/error.html', {'version': version,
+                                         'messages': messages},
+                               RequestContext(request))
     
         
 @login_required
@@ -67,3 +47,19 @@ def index(request):
     if request.user.is_authenticated():
         return render_to_response('iguserauth/index.html', {'version': version},
                                   RequestContext(request))    
+        
+        
+def form(request):
+    if request.method == 'POST' and request.POST.get('username'):
+        request.session['saved_username'] = request.POST['username']
+        backend = request.session['partial_pipeline']['backend']
+        return redirect('socialauth_complete', backend=backend)
+    return render_to_response('iguserauth/form.html', {}, RequestContext(request))
+
+
+def form2(request):
+    if request.method == 'POST' and request.POST.get('first_name'):
+        request.session['saved_first_name'] = request.POST['first_name']
+        backend = request.session['partial_pipeline']['backend']
+        return redirect('socialauth_complete', backend=backend)
+    return render_to_response('iguserauth/form2.html', {}, RequestContext(request))        

@@ -127,6 +127,22 @@ LOGGING = {
     }
 }
 
+'''
+SOCIAL_AUTH_PIPELINE = (
+    'social_auth.backends.pipeline.social.social_auth_user',
+    'social_auth.backends.pipeline.associate.associate_by_email',
+    'social_auth.backends.pipeline.misc.save_status_to_session',
+    'iguserauth.pipeline.redirect_to_form',
+    'iguserauth.pipeline.username',
+    'social_auth.backends.pipeline.user.create_user',
+    'social_auth.backends.pipeline.social.associate_user',
+    'social_auth.backends.pipeline.social.load_extra_data',
+    'social_auth.backends.pipeline.user.update_user_details',
+    'social_auth.backends.pipeline.misc.save_status_to_session',
+    'iguserauth.pipeline.redirect_to_form2',
+    'iguserauth.pipeline.first_name',
+)
+'''
 ROOT_URLCONF = 'nnpicksdj.urls'
 
 WSGI_APPLICATION = 'nnpicksdj.wsgi.application'
