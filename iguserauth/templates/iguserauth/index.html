@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article>
+  <h3>My Account Data:</h3>
+  <table>
+    <tr class="odd"><th>SquareSensor Id:</th> <td>{{ user.id }}</td></tr>
+    <tr class="even"><th>Username:</th> <td>{{ user.username }}</td></tr>
+    <tr class="odd"><th>Email:</th> <td>{{ user.email|default:"Not provided" }}</td></tr>
+    <tr class="even"><th>First name:</th> <td>{{ user.first_name|default:"Not provided" }}</td></tr>
+    <tr class="odd"><th>Last name:</th> <td>{{ user.last_name|default:"Not provided" }}</td></tr>
+    <tr class="even"><th>Last login backend:</th> <td>{{ user.last_login }}</td></tr>
+  </table>
+</article>
+<aside>
+    <h3>Logout from SquareSensor</h3>
+    <p><a href='{% url 'login:logout' %}'>Click here to log out</a></p>
+</aside>  
+      
+<article>
+    <section>
+        <h3>Access all resources available on SquareSensors by logging in through Instagram<h3>
+        <h3>Login with instagram</h3>
+        <p><a href='{% url "socialauth_begin" "instagram" %}'>Login with Instagram</a></p>        
+    </section>
+</article>     
+  
+ 
+ {% endblock %}

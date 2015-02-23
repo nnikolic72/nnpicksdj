@@ -71,8 +71,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_auth',
     'goodusers',
     'photos',
+    'iguserauth'
 )
 
 
@@ -88,10 +90,18 @@ MIDDLEWARE_CLASSES = (
 
 
 AUTHENTICATION_BACKENDS = (
-
+    'social_auth.backends.contrib.instagram.InstagramBackend',
     'django.contrib.auth.backends.ModelBackend',                      
 )
 
+
+INSTAGRAM_CLIENT_ID = '84b86efe6abb4da9b6fec960f5791239'
+INSTAGRAM_CLIENT_SECRET = 'b9444a35849444ec8c6c1fd586491e21'
+INSTAGRAM_AUTH_EXTRA_ARGUMENTS = {'scope': 'likes comments relationships'}
+
+LOGIN_URL          = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_ERROR_URL    = '/login/error/'
 
 LOGGING = {
     'version': 1,
@@ -116,6 +126,25 @@ LOGGING = {
         },
     }
 }
+
+'''
+SOCIAL_AUTH_PIPELINE = (
+    'social_auth.backends.pipeline.social.social_auth_user',
+    'social_auth.backends.pipeline.associate.associate_by_email',
+    'social_auth.backends.pipeline.misc.save_status_to_session',
+    'iguserauth.pipeline.redirect_to_form',
+    'iguserauth.pipeline.username',
+    'social_auth.backends.pipeline.user.create_user',
+    'social_auth.backends.pipeline.social.associate_user',
+    'social_auth.backends.pipeline.social.load_extra_data',
+    'social_auth.backends.pipeline.user.update_user_details',
+    'social_auth.backends.pipeline.misc.save_status_to_session',
+    'iguserauth.pipeline.redirect_to_form2',
+    'iguserauth.pipeline.first_name',
+)
+'''
+
+TEMPLATE_CONTEXT_PROCESSORS += ('django.core.context_processors.request',)
 
 ROOT_URLCONF = 'nnpicksdj.urls'
 

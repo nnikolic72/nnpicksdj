@@ -9,13 +9,20 @@
         <footer>
             <h3>Know an Instagram talent?</h3>
             <p>Add your suggestions - let us know which Instagram users you find talented!</p>
+            {% if not request.user.is_authenticated %}
+            <p>To enable this feature, please login using your Instagram account</p>
+            {% endif %}
         </footer>
     </article>
 
 
     <aside>
+        {% if request.user.is_authenticated %}
+        <h3>Welcome @{{ request.user.username }}</h3>
+        {% else %}
         <h3>Login</h3>
-        <p>XYZ</p>
+        <p><a href='{% url "socialauth_begin" "instagram" %}'>Login with Instagram</a></p>
+        {% endif %}
     </aside>
     
     <aside>

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block script %}
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="https://login.persona.org/include.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+function openPopup(url) {
+    var w = 700;
+    var h = 500;
+    var left = 100;
+    var top = 100;
+    var settings = 'height=' + h + ',width=' + w + ',left=' + left + ',top=' + top + ',resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=yes,directories=no,status=yes';
+    url += "?next={% url 'login_popup_close' %}";
+    window.open(url, name, settings)
+}
+</script>
+
+{% endblock %}
+
+{% block content %}
+<article>
+    <section>
+        <h3>Access all resources available on SquareSensors by logging in through Instagram<h3>
+        <h3>Login with instagram</h3>
+        <p><a href='{% url "socialauth_begin" "instagram" %}'>Login with Instagram</a></p>        
+    <section>
+    <section>
+        <h2>Logout<h2>
+        <h2>Disconnect completely from Instagram</h2>
+        <h2><a href='{% url "socialauth_disconnect" "instagram" %}'>click here</a></h2>
+    <section>    
+</article>
+
+{% endblock %}
