@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
-from django.views.generic import TemplateView 
+from django.views.generic import TemplateView, RedirectView
 
 
 urlpatterns = patterns('',
@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^photos/', include('photos.urls', namespace='photos') ),
     url(r'^login/', include('iguserauth.urls', namespace='login') ),
     url(r'^logout/', login_required( TemplateView.as_view(template_name="index.html")), name='apphome'),
+    #url(r'^complete/instagram/$', RedirectView.as_view(url='/login/ig', permanent=False), name='ig'),
     url(r'', include('social_auth.urls')),
     #url(r'^complete/$', TemplateView.as_view(template_name="index.html")),
     url(r'^$', TemplateView.as_view(template_name="index.html"), name='apphome'),

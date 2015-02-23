@@ -100,8 +100,8 @@ INSTAGRAM_CLIENT_SECRET = 'b9444a35849444ec8c6c1fd586491e21'
 INSTAGRAM_AUTH_EXTRA_ARGUMENTS = {'scope': 'likes comments relationships'}
 
 LOGIN_URL          = '/login/'
-LOGIN_REDIRECT_URL = '/login/'
-LOGIN_ERROR_URL    = '/login-error/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_ERROR_URL    = '/login/error/'
 
 LOGGING = {
     'version': 1,
