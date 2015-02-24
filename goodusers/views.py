@@ -37,7 +37,3 @@ def detail(request, p_instagram_user_name):
                   {'good_user': good_user, 'photos': photos, 'form':ContactForm()}
                   )
     
-    
-def contact_form(req):
-    '''Contact form view/ dajaxice example'''
-    return render(req, "goodusers/contact_form.html", {'form':ContactForm()})   
