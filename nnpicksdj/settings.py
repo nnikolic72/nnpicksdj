@@ -57,10 +57,18 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
+    'django.template.loaders.eggs.Loader',
 )
+
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'dajaxice.finders.DajaxiceFinder',
 )
 # Application definition
 
@@ -72,6 +80,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social_auth',
+    'dajaxice',
     'goodusers',
     'photos',
     'iguserauth'
@@ -144,7 +153,15 @@ SOCIAL_AUTH_PIPELINE = (
 )
 '''
 
-TEMPLATE_CONTEXT_PROCESSORS += ('django.core.context_processors.request',)
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages'
+)
 
 ROOT_URLCONF = 'nnpicksdj.urls'
 
@@ -201,4 +218,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+#STATIC = BASE_DIR + '/static/'
+#STATIC_ROOT = BASE_DIR + '/static/'
+
+#STATIC_ROOT = os.path.join(BASE_DIR,'static')
 

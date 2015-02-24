@@ -4,6 +4,7 @@ from django.views import generic
 
 from .models import GoodUser
 from photos.models import Photo
+from .forms import ContactForm
 
 # Create your views here.
 class IndexView(generic.ListView):
@@ -33,6 +34,6 @@ def detail(request, p_instagram_user_name):
         #raise Http404('No Instagram photos of username %s found in our database.' % (p_instagram_user_name))
     
     return render(request, 'goodusers/goodusers_detail.html', 
-                  {'good_user': good_user, 'photos': photos}
+                  {'good_user': good_user, 'photos': photos, 'form':ContactForm()}
                   )
     
