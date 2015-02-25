@@ -15,6 +15,7 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^goodusers/', include('goodusers.urls', namespace='goodusers') ),
+    url(r'^categories/', include('categories.urls', namespace='categories') ),
     url(r'^photos/', include('photos.urls', namespace='photos') ),
     url(r'^login/', include('iguserauth.urls', namespace='login') ),
     url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
