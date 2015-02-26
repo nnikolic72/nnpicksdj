@@ -167,6 +167,13 @@ nav a:hover {
     text-align: center;
 }
 
+.headerimage {
+    height: 68px;
+    width: 68px;
+    margin: 4px;
+    float: left;
+}
+
 .gublockcontainer {
     float: left;
     border-style: solid;
@@ -203,6 +210,11 @@ nav a:hover {
 .iglikestxt {
     font-size: 12px; 
 }
+
+
+.headerimage {
+}
+
 /* END GoodUsers CSS styles ----------------------------------- */
 
 

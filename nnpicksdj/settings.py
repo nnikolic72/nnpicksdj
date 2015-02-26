@@ -80,10 +80,12 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social_auth',
+    'csvimport',  # use AppConfig for django >=1.7 csvimport >=2.2
     'dajaxice',
     'goodusers',
     'photos',
-    'iguserauth'
+    'iguserauth',
+    'categories',
 )
 
 

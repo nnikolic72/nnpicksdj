@@ -10,4 +10,7 @@ from categories import views
 
 urlpatterns = patterns('', 
                        url(r'^$', views.IndexView.as_view() , name = 'index'),
+                       url(r'^(?P<p_category_name>.+)/$', views.detail, 
+                           name='details'
+                           )                       
                        )
