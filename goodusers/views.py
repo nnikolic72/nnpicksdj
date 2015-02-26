@@ -39,7 +39,7 @@ class UsersInCategory(TemplateView):
      
     template_name = 'goodusers/users_in_category.html'
     l_category = ""
-    goodusers_list = None
+    
     
     def get(self, request, *args, **kwargs):
         '''Serve GET request'''
@@ -50,12 +50,18 @@ class UsersInCategory(TemplateView):
             raise Http404('No Photo Category %s found in our database.' % (self.l_category)) 
             
         x = l_categories.title
-        self.goodusers_list = GoodUser.objects.filter(user_category__slug=self.l_category).order_by('user_name')
-        self.child_categories = Category.objects.filter(parent__slug=l_categories.slug)
+        goodusers_list = \
+            GoodUser.objects.filter(user_category__slug=l_categories.slug).order_by('user_name')
+        goodusers_list_child = \
+            GoodUser.objects.filter(user_category__parent__slug=l_categories.slug).\
+                distinct().order_by('user_name')
         
-        return render(request, self.template_name, { 'goodusers_list': self.goodusers_list,
+        child_categories = Category.objects.filter(parent__slug=l_categories.slug)
+        
+        return render(request, self.template_name, { 'goodusers_list': goodusers_list,
+                                                    'goodusers_list_child': goodusers_list_child, 
                                                     'category': x,
-                                                    'child_categories': self.child_categories                                                  
+                                                    'child_categories': child_categories                                                  
                                                     }
                       )    
     

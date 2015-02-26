@@ -172,6 +172,7 @@ nav a:hover {
     width: 68px;
     margin: 4px;
     float: left;
+    box-shadow: 0 5px 10px #8F410D;
 }
 
 .gublockcontainer {
@@ -211,9 +212,6 @@ nav a:hover {
     font-size: 12px; 
 }
 
-
-.headerimage {
-}
 
 /* END GoodUsers CSS styles ----------------------------------- */
 
