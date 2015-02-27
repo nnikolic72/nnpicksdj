@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+
+{% block pagetitle %} - List of Instagram talents in category "{{ category }}"{% endblock %}
+
+{% block content %}
+    <article>
+        <section>
+
+            <h2>List of Instagram talents in category "{{ category }}"</h2>
+{% if goodusers_list %}
+    <ul>
+        {% for gooduser in goodusers_list %}
+        <li><a href='{% url 'goodusers:details' gooduser.instagram_user_name %}'>{{gooduser.instagram_user_name}}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+<p>No Instagram talents in this photo category "{{ category }}" available in our database.</p>
+
+{% if goodusers_list_child %}
+    <h3>These users are featured in photo subcategories</h3>
+    <ul>
+        {% for gooduser in goodusers_list_child %}
+        <li><a href='{% url 'goodusers:details' gooduser.instagram_user_name %}'>{{gooduser.instagram_user_name}}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+<p>No Instagram talents in photo subcategories available in our database.</p>
+{% endif %}
+
+{% if child_categories and goodusers_list_child %}
+    <section>
+    <h2>Subcategories</h2>
+    <ul>
+        {% for category in child_categories %}
+        <li><a href='{% url 'goodusers:users_in_category' category.slug %}'>{{category.title}}</a></li>
+        {% endfor %}
+    </ul>    
+    </section>
+{% endif %}
+
+{% endif %}            
+        </section>
+    </article>
+{% endblock %}    

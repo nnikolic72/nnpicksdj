@@ -211,7 +211,7 @@ class GoodUserAdmin(admin.ModelAdmin):
     '''Determine what is dispalayed on GoodUser Admin Edit form'''
     fieldsets = [
         ('General Information', {'fields': ['user_name', 'full_name', 'email', 
-                                            'instagram_user_name'
+                                            'instagram_user_name', 'user_category'
                                             ]
                                  }
          ),

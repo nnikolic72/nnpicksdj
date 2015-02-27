@@ -1,8 +1,12 @@
+import datetime
+
 from django.db import models
 from django.utils import timezone
 #from django import forms
 from django.utils.translation import ugettext as _
-import datetime
+
+from categories.models import Category
+
 
 # Create your models here.
 class GoodUser(models.Model):
@@ -72,7 +76,7 @@ class GoodUser(models.Model):
                                                      'processed in the next Batch Run'
                                                      )
                                           )
-    
+    user_category = models.ManyToManyField(Category, null=True, blank=True)
     creation_date = models.DateTimeField('GoodUser creation date', auto_now_add=True)
     last_update_date = models.DateTimeField('GoodUser creation date', auto_now=True)
     

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block pagetitle %} - Photo Category "{{ category }}"{% endblock %}
+
+{% block content %}
+
+<article>
+    <section>
+<h1>Category "{{ category }}"</h1>
+
+{% if child_categories %}
+    <section>
+    <h2>Subcategories</h2>
+    <ul>
+        {% for category in child_categories %}
+        <li><a href='{% url 'categories:details' category.slug %}'>{{category.title}}</a></li>
+        {% endfor %}
+    </ul>    
+    </section>
+{% endif %}
+    </section>
+</article>
+{% endblock %}
