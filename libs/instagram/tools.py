@@ -22,6 +22,13 @@ class InstagramSession():
 
     api = None
     
+    def __init__(self, p_is_admin, p_token):
+        
+        if p_is_admin:
+            self.access_token = INSTAGRAM_API_KEY
+        else:
+            self.access_token = p_token
+    
     def init_instagram_API(self):
         '''Initializes Instagram API session
         
@@ -30,9 +37,9 @@ class InstagramSession():
         '''
         
         '''Read variable from settings.py'''
-        access_token = INSTAGRAM_API_KEY
+        
         try:
-            self.api = InstagramAPI(access_token=access_token)
+            self.api = InstagramAPI(access_token=self.access_token)
             
             '''Perform simple api search to set x_ratelimit_remaining'''
             temp = self.api.user_search(q='instagram', count=1)
@@ -45,17 +52,18 @@ class InstagramSession():
             #self.message_user(request, buf, level=messages.WARNING)
             
         except:
-            logging.exception("init_instagram_API: ERR-00003 Unexpected error: " + exc_info()[0]   ) 
+            logging.exception("init_instagram_API: ERR-00003 Unexpected error: " + exc_info()[0]   )
+            raise 
             #self.message_user(request, buf, level=messages.ERROR) 
         
     
-    def is_instagram_user_valid(self, p_gooduser):
+    def is_instagram_user_valid(self, p_gooduser_name):
         '''Check if you can find Instagram user'''
         
         user_search = None
         if self.api:
             try:
-                user_search = self.api.user_search(q=p_gooduser.instagram_user_name, count=1)
+                user_search = self.api.user_search(q=p_gooduser_name, count=1)
             except InstagramAPIError as e:
                 logging.exception("is_instagram_user_valid: ERR-00004 Instagram API Error %s : %s" % (e.status_code, e.error_message))
     
@@ -92,7 +100,7 @@ class InstagramSession():
         '''returns Instagram photo information'''
         
         try:
-            l_photo = self.api.media(media_id = p_photo_id)
+            l_photo = self.api.media(media_id=p_photo_id)
         except InstagramAPIError as e:
             logging.exception("get_instagram_photo_info: ERR-00021 Instagram API Error %s : %s" % (e.status_code, e.error_message))
 
@@ -140,12 +148,103 @@ class InstagramSession():
         return self.api.x_ratelimit_remaining, self.api.x_ratelimit      
 
 
+class MyLikes:
+    '''Store my likes'''
+    
+    def __init__(self, p_instgram_user, p_photo_id, p_instagram_api):
+        '''Initialize class object
+           Parameters:
+           p_instagram_api - opened instagram session
+           p_max_like_id - photo ID
+        '''
+        
+        self.liked_media = None
+        self.instagram_session = p_instagram_api
+        self.photo_id = p_photo_id # ID of media to check
+        self.my_instgram_username = p_instgram_user
+        
+    
+        
+    def has_user_liked_media(self):
+        '''returns if user liked the media self.max_like_id '''
+        
+        self.liked_media = self.instagram_session.get_instagram_photo_info(self.photo_id)
+        
+
+        if self.liked_media.user_has_liked :
+            return True
+        else:
+            return False
+        
+    def like_instagram_media(self):
+        '''Procedure that likes instagram media with ID  self.photo_id'''
+        
+        result = 'error'
+        
+        '''Check if media is already liked'''
+        if self.has_user_liked_media():
+            '''If already liked - unlike'''
+            try:
+                self.instagram_session.api.unlike_media(media_id=self.photo_id)
+                result = 'unlike'
+            except InstagramAPIError as e:
+                logging.exception("get_instagram_user: ERR-00032 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+            except InstagramClientError as e:
+                logging.exception("get_instagram_user: ERR-00033 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+            except IndexError:
+                logging.exception("get_instagram_user: ERR-00034 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+            except:
+                logging.exception("get_instagram_user: ERR-00035 Unexpected error: %s" % (exc_info()[0]))
+                raise                   
+        else:
+            '''if not already liked - like'''
+            try:
+                self.instagram_session.api.like_media(media_id=self.photo_id)
+                result = 'like'
+            except InstagramAPIError as e:
+                logging.exception("get_instagram_user: ERR-00036 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+            except InstagramClientError as e:
+                logging.exception("get_instagram_user: ERR-00037 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+            except IndexError:
+                logging.exception("get_instagram_user: ERR-00038 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+            except:
+                logging.exception("get_instagram_user: ERR-00039 Unexpected error: %s" % (exc_info()[0]))
+                raise             
+
+        return result
+    
+    def comment_instagram_media(self, p_comment_text):
+        '''Procedure that likes instagram media with ID  self.photo_id'''
+        
+        result = 'error'
+        
+
+        try:
+            self.instagram_session.api.create_media_comment (media_id=self.photo_id,
+                                                             text=p_comment_text
+                                                             )
+            result = 'comment'
+        except InstagramAPIError as e:
+            logging.exception("get_instagram_user: ERR-00040 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+        except InstagramClientError as e:
+            logging.exception("get_instagram_user: ERR-00041 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+        except IndexError:
+            logging.exception("get_instagram_user: ERR-00042 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+        except:
+            logging.exception("get_instagram_user: ERR-00043 Unexpected error: %s" % (exc_info()[0]))
+            raise                   
+          
+
+        return result
+    
     
 class BestPhotos:
     '''Find best photos of instgaram user'''
     l_user_has_photos = True
     
     def __init__(self, instgram_user_id, top_n_photos, search_photos_amount, instagram_api):
+        '''Initialize class object'''
+        
         self.l_instgram_user_id = instgram_user_id
         self.l_top_n_photos = top_n_photos
         self.l_search_photos_amount = search_photos_amount

@@ -212,6 +212,33 @@ nav a:hover {
     font-size: 12px; 
 }
 
+.iglikebutton {
+    float: left;
+    text-align: left;
+    font-size: 10px;
+    margin: 3px;
+    padding: 3px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 5px 5px #8F410D;    
+}
+
+.photocommentformclass {
+    float: left;
+    width: 100px;
+    height: 30px;
+    margin: 3px;
+    padding: 3px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 5px 5px #8F410D;        
+}
+
+.igcommentclass {
+    float: left;
+    width: 100px;
+    height: 30px;
+}
 
 /* END GoodUsers CSS styles ----------------------------------- */
 

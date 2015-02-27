@@ -9,8 +9,12 @@ var Dajaxice = {
     
     goodusers: {
     
-    send_message: function(callback_function, argv, custom_settings){
-        return Dajaxice.call('goodusers.send_message', 'POST', callback_function, argv, custom_settings);
+    send_comment: function(callback_function, argv, custom_settings){
+        return Dajaxice.call('goodusers.send_comment', 'POST', callback_function, argv, custom_settings);
+    },
+
+    like: function(callback_function, argv, custom_settings){
+        return Dajaxice.call('goodusers.like', 'POST', callback_function, argv, custom_settings);
     }
 
 

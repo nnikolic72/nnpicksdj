@@ -14,3 +14,48 @@ function send_message(){
   Dajaxice.goodusers.send_message(message_callback, {'form':data});
   return false;
 }
+
+function like_callback(data){
+    // alert("I am an alert box!");
+    idname = '#likesdiv';
+    idname = idname.concat(data.photo_id);
+    //alert(data.photo_id);
+    //alert(data.like_action_result);
+    if (data.like_action_result == 'like') {
+        html_text = '<img src="';
+        html_text = html_text.concat(data.static_url);
+        html_text = html_text.concat('img/redheart.png"></img>');
+        $(idname).html(html_text);
+    }
+    if (data.like_action_result == 'unlike') {
+        html_text = '<img src="';
+        html_text = html_text.concat(data.static_url);
+        html_text = html_text.concat('img/greyheart.png"></img>');
+        $(idname).html(html_text);
+    }
+    if (data.like_action_result == 'error') {
+        $(idname).html('E');
+    }
+    return true;
+}
+
+function like(p_photo_id) {
+    
+    Dajaxice.goodusers.like(like_callback, {'p_photo_id':p_photo_id});
+}
+
+
+function send_comment_callback(data){
+    //alert("I am an alert box!");
+    
+    return true;
+}
+
+function send_comment(p_photo_id) {
+    
+    comment_form_name = "#comment_form_";
+    comment_form_name = comment_form_name.concat(p_photo_id);
+    form = $(comment_form_name).serializeObject();
+    //alert(form);
+    Dajaxice.goodusers.send_comment(send_comment_callback, {'p_photo_id':p_photo_id, 'form': form});
+}

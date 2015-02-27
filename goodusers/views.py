@@ -1,12 +1,20 @@
+
+
 from django.shortcuts import render
 from django.http import Http404
 from django.views import generic
+from django.views.generic.base import TemplateView
+
+from social_auth.models import UserSocialAuth  # @UnresolvedImport
+
 
 from .models import GoodUser
 from photos.models import Photo
 from categories.models import Category
-from .forms import ContactForm
-from django.views.generic.base import TemplateView
+from .forms import PhotoCommentForm
+from libs.instagram.tools import MyLikes, InstagramSession
+
+
 
 # Create your views here.
 class IndexView(generic.ListView):
@@ -65,23 +73,59 @@ class UsersInCategory(TemplateView):
                                                     }
                       )    
     
-def detail(request, p_instagram_user_name):
+class GoodUsersDetailView(TemplateView):
     '''View Good User Details'''
     
-    try:
-        '''Get user with given Instagram user name'''
-        good_user = GoodUser.objects.get(instagram_user_name=p_instagram_user_name)
-    except GoodUser.DoesNotExist:
-        raise Http404('No Instagram Talents with username %s found in our database.' % (p_instagram_user_name))
+    template_name = 'goodusers/goodusers_detail.html'
     
-    try:
-        photos = Photo.objects.filter(good_user_id=good_user.pk).order_by('-photo_rating')
-    except Photo.DoesNotExist:
-        photos = None
-        pass
-        #raise Http404('No Instagram photos of username %s found in our database.' % (p_instagram_user_name))
-    
-    return render(request, 'goodusers/goodusers_detail.html', 
-                  {'good_user': good_user, 'photos': photos, 'form':ContactForm()}
-                  )
+    def get(self, request, *args, **kwargs):
+        '''Serve GET request'''
+        
+        '''Get users Instagram token'''
+        #request_user_id = request.user.id # get logged users Django user id
+        #instance = UserSocialAuth.objects.get(user=request.user, provider='instagram') 
+        #token = instance.tokens
+        
+        self.instagram_user_name = kwargs['p_instagram_user_name']
+        
+        try:
+            '''Get user with given Instagram user name'''
+            good_user = GoodUser.objects.get(instagram_user_name=self.instagram_user_name)
+        except GoodUser.DoesNotExist:
+            raise Http404('No Instagram Talents with username %s found in our database.' % (self.instagram_user_name))
+        
+        try:
+            photos = Photo.objects.filter(good_user_id=good_user.pk).order_by('-photo_rating')
+        except Photo.DoesNotExist:
+            photos = None
+            pass
+            #raise Http404('No Instagram photos of username %s found in our database.' % (p_instagram_user_name))
+        
+        '''Check if user has liked those photos'''
+       
+        '''Init Instagram session using authenticated user token'''
+        tokens = UserSocialAuth.get_social_auth_for_user(request.user).get().tokens
+        ig_session = InstagramSession(p_is_admin=False, p_token=tokens['access_token'])
+        ig_session.init_instagram_API()
+
+        self.l_instagram_api_limit_start, self.l_instagram_api_limit = \
+             ig_session.get_api_limits()
+            
+        liked_photos = [] 
+        for photo in photos:
+            my_likes = MyLikes(request.user.username, photo.instagram_photo_id, ig_session )       
+            if my_likes.has_user_liked_media():
+                liked_photos.extend([photo.instagram_photo_id])
+        
+        self.l_instagram_api_limit_stop, self.l_instagram_api_limit = \
+             ig_session.get_api_limits()
+             
+        self.api_limit_spent = int(self.l_instagram_api_limit_start) - int(self.l_instagram_api_limit_stop)
+                     
+        return render(request, self.template_name, 
+                      {'good_user': good_user, 'photos': photos, 'form':PhotoCommentForm(),
+                       'liked_photos': liked_photos, 'api_limit_spent': self.api_limit_spent,
+                       'api_limit_current': self.l_instagram_api_limit_stop
+                       }
+                      )
     

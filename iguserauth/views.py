@@ -7,7 +7,7 @@ from django.contrib.auth import logout as auth_logout
 #from django.contrib.auth import logout as auth_logout
 
 # Create your views here.
-from social_auth import __version__ as version
+from social_auth import __version__ as version  # @UnresolvedImport
 
 
 

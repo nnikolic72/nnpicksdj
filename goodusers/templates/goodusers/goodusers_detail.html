@@ -48,6 +48,22 @@
 		                        <div class='iglikestxt'>
 		                        Likes: {{ photo.instagram_likes }}
 		                        </div>
+		                        <div class='iglikebutton' onclick="like('{{ photo.instagram_photo_id }}');" id='likesdiv{{ photo.instagram_photo_id }}'>
+								{% if photo.instagram_photo_id in liked_photos %}
+								   <img src='{{STATIC_URL}}img/redheart.png'></img>
+								{% else %}
+								   <img src='{{STATIC_URL}}img/greyheart.png'></img>
+								{% endif %}		                        
+		                        </div>
+		                        
+		                        <div class="photocommentformclass">
+		                        <form action="" method="post" id="comment_form_{{ photo.instagram_photo_id }}" accept-charset="utf-8">{% csrf_token %}
+		                        {{ form }}
+		                        <input value="Send" id="send_msg" onclick="send_comment('{{ photo.instagram_photo_id }}');" type="button" />
+		                        </form>
+		                        </div>
+		                        
+		                        		                        
 		                    </div>
 		                    {% endfor %} 
 		                </div>
@@ -63,7 +79,8 @@
         {% endif %}
         <footer>
             <h3>Support this Instagram Talent</h3>
-            <p>Bu following, liking and commenting on this talented users photos, you are providing support.</p>
+            <p>By following, liking and commenting on this talented users photos, you are providing support.</p>
+            <p>Spent: {{ api_limit_spent }}, Current: {{ api_limit_current }}</p>
         </footer>
     </article>
 
@@ -71,7 +88,7 @@
         <div id="contact_errors">TESTX</div>
 		<form action="" method="post" id="contact_form" accept-charset="utf-8">{% csrf_token %}
 		  <table>
-		  {{form}}
+		<!--  {{form}} -->
 		  </table>
 		  <p><input value="Send Message" id="send_msg" onclick="send_message();" type="button" /></p>
 		</form>

@@ -11,7 +11,7 @@ urlpatterns = patterns('',
                        url(r'^users/(?P<p_category_name>.+)/$', views.UsersInCategory.as_view(), 
                            name='users_in_category'
                            ),                       
-                       url(r'^(?P<p_instagram_user_name>.+)/$', views.detail, 
+                       url(r'^(?P<p_instagram_user_name>.+)/$', views.GoodUsersDetailView.as_view(), 
                            name='details'
                            ),
 

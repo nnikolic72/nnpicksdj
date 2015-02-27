@@ -27,7 +27,7 @@ class GoodUserAdmin(admin.ModelAdmin):
         '''
         
         if api:
-            user_search = api.is_instagram_user_valid(p_gooduser)
+            user_search = api.is_instagram_user_valid(p_gooduser.instagram_user_name)
         
         if user_search:
             instagram_user = api.get_instagram_user(user_search[0].id)
@@ -59,7 +59,7 @@ class GoodUserAdmin(admin.ModelAdmin):
         l_counter = 0
         l_counter_pics = 0
         
-        ig_session = InstagramSession()
+        ig_session = InstagramSession(p_is_admin=True, p_token='')
         ig_session.init_instagram_API()
         
         self.l_instagram_api_limit_start, self.l_instagram_api_limit = \
