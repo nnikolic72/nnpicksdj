@@ -226,7 +226,7 @@ nav a:hover {
 .photocommentformclass {
     float: left;
     width: 100px;
-    height: 30px;
+    height: 50px;
     margin: 3px;
     padding: 3px;
     border-style: solid;
@@ -235,9 +235,15 @@ nav a:hover {
 }
 
 .igcommentclass {
+    font-size: 10px;
+    font-family: Tahoma, sans-serif;
+    border: 3px solid #cccccc;
     float: left;
-    width: 100px;
-    height: 30px;
+    width: 90px;
+    height: 45px;
+    outline: none;
+    resize: none;
+    overflow: auto;
 }
 
 /* END GoodUsers CSS styles ----------------------------------- */

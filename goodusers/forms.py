@@ -16,4 +16,6 @@ class PhotoCommentForm(forms.Form):
     '''Instagram photo comment form''' 
     
     csrfmiddlewaretoken = forms.HiddenInput()
-    comment = forms.CharField(widget=forms.Textarea(attrs={'class' : 'igcommentclass'}), label='')  
+    comment = forms.CharField(widget=forms.Textarea(attrs={'class' : 'igcommentclass'}),
+                              label=''
+                              )  
