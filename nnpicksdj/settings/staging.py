@@ -5,6 +5,13 @@ Created on Feb 28, 2015
 '''
 
 import dj_database_url
+from memcacheify import memcacheify  # @UnresolvedImport
+
+#insert into requirements.txt:
+#
+#django-heroku-memcacheify==0.8
+#pylibmc==1.2.3
+CACHES = memcacheify()
 
 from nnpicksdj.settings.base import * # @UnusedWildImport
 

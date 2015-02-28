@@ -15,7 +15,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+#import os
 import re
 from unipath import Path
 
@@ -33,7 +33,8 @@ TEMPLATE_DIRS = [BASE_DIR + '\\..\\nnpicksdj\\templates\\nnpicksdj',
                  ]
 '''
 
-TEMPLATE_DIRS = (PROJECT_DIR.child("nnpicksdj").child("templates").child("nnpicksdj"),)
+TEMPLATE_DIRS = (PROJECT_DIR.child("nnpicksdj").child("templates").child("nnpicksdj"),
+                 )
 
 
 TEMPLATE_CONTEXT_PROCESSORS = (
