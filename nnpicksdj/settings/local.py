@@ -3,12 +3,16 @@ Created on Feb 28, 2015
 
 @author: tanja
 '''
-from ConfigParser import ConfigParser  # @UnusedImport
+
 
 from nnpicksdj.settings.old import * # @UnusedWildImport
 
 config = ConfigParser()
-config.read(BASE_DIR + '\\settings\\settings.ini')
+try:
+    config.read(BASE_DIR + '\\settings\\settings.ini')
+    #config.read(BASE_DIR + 'settings.ini')
+except:
+    raise
 
 DATABASE_USER = config.get('database', 'DATABASE_USER')
 DATABASE_PASSWORD = config.get('database', 'DATABASE_PASSWORD')
