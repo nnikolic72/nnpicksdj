@@ -17,15 +17,24 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import re
+from unipath import Path
+
 from ConfigParser import ConfigParser  # @UnusedImport
 #from django.conf.global_settings import TEMPLATE_DIRS
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+#BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+PROJECT_DIR = Path(__file__).ancestor(3)
+BASE_DIR = PROJECT_DIR.child('nnpicksdj')
 
+'''
 TEMPLATE_DIRS = [BASE_DIR + '\\..\\nnpicksdj\\templates\\nnpicksdj', 
                  BASE_DIR + '\\..\\templates', 
                  BASE_DIR + '\\..\\templates\\admin', 
                  ]
+'''
+
+TEMPLATE_DIRS = (PROJECT_DIR.child("nnpicksdj").child("templates").child("nnpicksdj"),)
+
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
@@ -54,7 +63,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social_auth',
-    'csvimport',  # use AppConfig for django >=1.7 csvimport >=2.2
+#    'csvimport',  # use AppConfig for django >=1.7 csvimport >=2.2
+    'import_export',
     'dajaxice',
     'goodusers',
     'photos',
@@ -70,7 +80,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 
@@ -157,10 +167,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
+MEDIA_ROOT = PROJECT_DIR.child("media")
+STATIC_ROOT = PROJECT_DIR.child("static")
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "..//static"),
+#    os.path.join(BASE_DIR, "..//static"),
+    PROJECT_DIR.child("assets"),
 )
-
+ 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -172,4 +185,5 @@ STATIC_URL = '/static/'
 #STATIC_ROOT = BASE_DIR + '/static/'
 
 #STATIC_ROOT = os.path.join(BASE_DIR,'static')
+
 

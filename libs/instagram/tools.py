@@ -163,18 +163,22 @@ class MyLikes:
         self.photo_id = p_photo_id # ID of media to check
         self.my_instgram_username = p_instgram_user
         
-    
+    def get_number_of_media_likes(self):
+        '''Returns number of likes on a media object for Instagram ID self.photo_id'''
+        
+        
         
     def has_user_liked_media(self):
         '''returns if user liked the media self.max_like_id '''
         
         self.liked_media = self.instagram_session.get_instagram_photo_info(self.photo_id)
+        no_of_likes = self.liked_media.like_count
         
 
         if self.liked_media.user_has_liked :
-            return True
+            return True, no_of_likes
         else:
-            return False
+            return False, no_of_likes
         
     def like_instagram_media(self):
         '''Procedure that likes instagram media with ID  self.photo_id'''
@@ -182,7 +186,8 @@ class MyLikes:
         result = 'error'
         
         '''Check if media is already liked'''
-        if self.has_user_liked_media():
+        has_user_liked_media, no_of_likes = self.has_user_liked_media()  # @UnusedVariable
+        if has_user_liked_media:
             '''If already liked - unlike'''
             try:
                 self.instagram_session.api.unlike_media(media_id=self.photo_id)

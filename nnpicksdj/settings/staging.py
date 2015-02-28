@@ -4,36 +4,39 @@ Created on Feb 28, 2015
 @author: tanja
 '''
 
-from ConfigParser import ConfigParser
+import dj_database_url
 
-from nnpicksdj.settings.old import * # @UnusedWildImport
+from nnpicksdj.settings.base import * # @UnusedWildImport
 
+# HEROKU SETUP
+# heroku config:set DJANGO_SETTINGS_MODULE=nnpicksdj.settings.staging
+#
+# git add .
+# git commit -m "my app"
+# git push heroku master
+# heroku run python manage.py migrate
+
+# heroku pg:info # vraca informacije o statusu postgres baze na Heroku (koliko redova je ostalo)
 
 config = ConfigParser()
-config.read(BASE_DIR + '\\settings\\settings.ini')
-
-DATABASE_USER = config.get('database', 'DATABASE_USER')
-DATABASE_PASSWORD = config.get('database', 'DATABASE_PASSWORD')
-DATABASE_HOST = config.get('database', 'DATABASE_HOST')
-DATABASE_PORT = config.get('database', 'DATABASE_PORT')
-DATABASE_ENGINE = config.get('database', 'DATABASE_ENGINE')
-DATABASE_NAME = config.get('database', 'DATABASE_NAME')
+settings_path = PROJECT_DIR.child('nnpicksdj').child("settings")
+settings_path = Path(settings_path, 'settings.ini')
+config.read(settings_path)
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
+# Heroku part
 DATABASES = {
-    'default': {
-        'ENGINE': DATABASE_ENGINE,
-        'NAME': DATABASE_NAME,
-        'USER': DATABASE_USER,
-        'PASSWORD': DATABASE_PASSWORD,
-        'HOST': DATABASE_HOST,
-        'PORT': DATABASE_PORT,
-    }
+    'default': dj_database_url.config(default='sqlite:///db.sqlite')
 }
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+ALLOWED_HOSTS = ['*']
+MIDDLEWARE_CLASSES += ('django.middleware.clickjacking.XFrameOptionsMiddleware',)
 
 INSTAGRAM_API_KEY = config.get('instagram', 'SECRET_KEY')
+INSTAGRAM_CLIENT_ID = config.get('instagram', 'CLIENT_ID')
+INSTAGRAM_CLIENT_SECRET = config.get('instagram', 'CLIENT_SECRET')
 
 SECRET_KEY =  config.get('nnpicksdj', 'SECRET_KEY')
 
@@ -41,7 +44,6 @@ DEBUG = False
 
 TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
 
 LOGGING = {
     'version': 1,

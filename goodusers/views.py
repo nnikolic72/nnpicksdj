@@ -113,9 +113,13 @@ class GoodUsersDetailView(TemplateView):
             
         liked_photos = [] 
         for photo in photos:
-            my_likes = MyLikes(request.user.username, photo.instagram_photo_id, ig_session )       
-            if my_likes.has_user_liked_media():
+            my_likes = MyLikes(request.user.username, photo.instagram_photo_id, ig_session )
+            has_user_liked_media, no_of_likes = my_likes.has_user_liked_media()       
+            if has_user_liked_media:
                 liked_photos.extend([photo.instagram_photo_id])
+            #x = Photo.objects.filter(id=photo.id)
+            photo.instagram_likes = no_of_likes
+            photo.save()
         
         self.l_instagram_api_limit_stop, self.l_instagram_api_limit = \
              ig_session.get_api_limits()

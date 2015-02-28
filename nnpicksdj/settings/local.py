@@ -5,14 +5,14 @@ Created on Feb 28, 2015
 '''
 
 
-from nnpicksdj.settings.old import * # @UnusedWildImport
+#from nnpicksdj.settings.base import * # @UnusedWildImport
+from .base import * # @UnusedWildImport
 
 config = ConfigParser()
-try:
-    config.read(BASE_DIR + '\\settings\\settings.ini')
-    #config.read(BASE_DIR + 'settings.ini')
-except:
-    raise
+settings_path = PROJECT_DIR.child('nnpicksdj').child("settings")
+settings_path = Path(settings_path, 'settings.ini')
+config.read(settings_path)
+
 
 DATABASE_USER = config.get('database', 'DATABASE_USER')
 DATABASE_PASSWORD = config.get('database', 'DATABASE_PASSWORD')
@@ -71,8 +71,7 @@ LOGGING = {
 
 INSTALLED_APPS += ("debug_toolbar", )
 INTERNAL_IPS = ("127.0.0.1",)
-MIDDLEWARE_CLASSES += \
-("debug_toolbar.middleware.DebugToolbarMiddleware", )
+MIDDLEWARE_CLASSES = ("debug_toolbar.middleware.DebugToolbarMiddleware", ) + MIDDLEWARE_CLASSES
 
 
 

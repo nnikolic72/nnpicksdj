@@ -3,15 +3,17 @@ Created on Feb 24, 2015
 
 @author: n.nikolic
 '''
+import json
+
 from django.conf import settings
 
 from dajaxice.decorators import dajaxice_register
-
 from social_auth.models import UserSocialAuth  # @UnresolvedImport
 
 from .forms import PhotoCommentForm
 from libs.instagram.tools import MyLikes, InstagramSession
-import json
+from photos.models import Photo
+
 
    
 @dajaxice_register
@@ -24,11 +26,21 @@ def like(req, p_photo_id):
     
     
     my_likes = MyLikes(req.user.username, p_photo_id, ig_session)
-    like_action_result = my_likes.like_instagram_media() # "like", "unlike", "error"  
+    like_action_result = my_likes.like_instagram_media() # "like", "unlike", "error" 
+    
+    #if like_action_result != 'error':
+    l_media = ig_session.get_instagram_photo_info(p_photo_id)
+    no_of_likes = l_media.like_count 
+    
+    l_photo = Photo.objects.filter(instagram_photo_id=p_photo_id)
+    for x in l_photo:
+        x.instagram_likes = no_of_likes
+        x.save()
     
     return json.dumps({'photo_id':p_photo_id, 
                        'like_action_result':like_action_result,
-                       'static_url': settings.STATIC_URL
+                       'static_url': settings.STATIC_URL,
+                       'no_of_likes': no_of_likes
                        }
                       )
 

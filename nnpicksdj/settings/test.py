@@ -4,9 +4,7 @@ Created on Feb 28, 2015
 @author: tanja
 '''
 
-from ConfigParser import ConfigParser
-
-from nnpicksdj.settings.old import * # @UnusedWildImport
+from nnpicksdj.settings.base import * # @UnusedWildImport
 
 config = ConfigParser()
 config.read(BASE_DIR + '\\settings\\settings.ini')

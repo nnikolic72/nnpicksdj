@@ -49,15 +49,19 @@
 		                        <div class="likessection">
 		                        	<div class='iglikebutton' onclick="like('{{ photo.instagram_photo_id }}');" id='likesdiv{{ photo.instagram_photo_id }}'>
 									{% if photo.instagram_photo_id in liked_photos %}
-									   <img class="heartimage" src='{{STATIC_URL}}img/redheart.png'></img>
+									   <img class="heartimage" id='imglike_{{ photo.instagram_photo_id }}' src='{{STATIC_URL}}img/redheart.png'></img>
 									{% else %}
-									   <img class="heartimage" src='{{STATIC_URL}}img/greyheart.png'></img>
+									   <img class="heartimage" id='imglike_{{ photo.instagram_photo_id }}' src='{{STATIC_URL}}img/greyheart.png'></img>
 									{% endif %}		                        
 			                        </div>
 			                        
-			                        <div class='iglikestxt'>
-			                        Likes: {{ photo.instagram_likes }}
-			                        </div>		                        
+			                        <div class='iglikestxt' id='iglikestxt_{{ photo.instagram_photo_id }}'>
+			                        {{ photo.instagram_likes }}
+			                        </div>	
+			                        
+			                        <div class='commentbutton' id='commentbutton_{{ photo.instagram_photo_id }}'>
+			                        <img class='commentbuttonimg' src='{{STATIC_URL}}img/comment.png'></img>
+			                        </div>	                        
 		                        </div>
 		                        
 		                        <div class="commentsection">
