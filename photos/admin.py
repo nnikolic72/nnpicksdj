@@ -1,8 +1,8 @@
 from django.contrib import admin
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _  # @UnusedImport
 
 from .models import Photo
-from goodusers.models import GoodUser
+#from goodusers.models import GoodUser
 from libs.instagram.tools import InstagramSession
 
 # Register your models here.
@@ -43,7 +43,7 @@ class PhotoAdmin(admin.ModelAdmin):
     def process_photos_by_instagram_api(self, request, queryset):
         '''Action -> process photos by Instagram API'''
         
-        ig_session = InstagramSession()
+        ig_session = InstagramSession(p_is_admin=True, p_token='')
         ig_session.init_instagram_API()
         
         self.l_instagram_api_limit_start, self.l_instagram_api_limit = \

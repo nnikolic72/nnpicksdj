@@ -13,7 +13,7 @@ import logging
 from instagram import InstagramAPI
 from instagram.bind import InstagramAPIError, InstagramClientError
 
-from nnpicksdj.settings import INSTAGRAM_API_KEY
+from nnpicksdj.settings.local import INSTAGRAM_API_KEY
 #from goodusers.models import GoodUser
 
 
@@ -42,7 +42,7 @@ class InstagramSession():
             self.api = InstagramAPI(access_token=self.access_token)
             
             '''Perform simple api search to set x_ratelimit_remaining'''
-            temp = self.api.user_search(q='instagram', count=1)
+            temp = self.api.user_search(q='instagram', count=1)  # @UnusedVariable
         except InstagramAPIError as e:
             logging.exception("init_instagram_API: ERR-00001 Instagram API Error %s : %s" % (e.status_code, e.error_message))
             #self.message_user(request, buf, level=messages.WARNING)
@@ -287,6 +287,9 @@ class BestPhotos:
             logging.exception("get_instagram_photos: ERR-00011 Unexpected error: %s" % (exc_info()[0]))
             raise("get_instagram_user: ERR-00011 Unexpected error: %s" % (exc_info()[0]))    
 
+        if not recent_media:
+            self.l_user_has_photos = False
+            
         if recent_media and x_next:     
             while x_next:
                 try:     
@@ -306,8 +309,7 @@ class BestPhotos:
                 recent_media.extend(media_feed)
                 if len (recent_media) >= self.l_search_photos_amount:
                     break
-        else:
-            self.l_user_has_photos = False
+            
         
         if self.l_user_has_photos:    
             self.l_latest_photos = recent_media
@@ -343,8 +345,15 @@ class BestPhotos:
                         
             l_normalized_media_list = []
             for val in l_media_list:
-                val[1] = (val[1] - l_min_likes) / (l_max_likes - l_min_likes)
-                val[3] = (val[3] - l_min_days) / (l_max_days - l_min_days)
+                if (l_max_likes - l_min_likes) != 0:
+                    val[1] = (val[1] - l_min_likes) / (l_max_likes - l_min_likes)
+                else:
+                    val[1] = 0
+                
+                if (l_max_days - l_min_days) != 0:
+                    val[3] = (val[3] - l_min_days) / (l_max_days - l_min_days)
+                else:
+                    val[3] = 0
                 l_normalized_media_list.append(val)
             
             '''Sort media by date'''    

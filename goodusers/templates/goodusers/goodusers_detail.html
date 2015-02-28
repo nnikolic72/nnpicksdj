@@ -45,24 +45,29 @@
 		                        <div>
 		                            <a href='{{ photo.instagram_link_URL }}' target='_blank'><img src='{{ photo.instagram_thumbnail_URL }}'></img></a>
 		                        </div>
-		                        <div class='iglikestxt'>
-		                        Likes: {{ photo.instagram_likes }}
-		                        </div>
-		                        <div class='iglikebutton' onclick="like('{{ photo.instagram_photo_id }}');" id='likesdiv{{ photo.instagram_photo_id }}'>
-								{% if photo.instagram_photo_id in liked_photos %}
-								   <img src='{{STATIC_URL}}img/redheart.png'></img>
-								{% else %}
-								   <img src='{{STATIC_URL}}img/greyheart.png'></img>
-								{% endif %}		                        
+		                        
+		                        <div class="likessection">
+		                        	<div class='iglikebutton' onclick="like('{{ photo.instagram_photo_id }}');" id='likesdiv{{ photo.instagram_photo_id }}'>
+									{% if photo.instagram_photo_id in liked_photos %}
+									   <img class="heartimage" src='{{STATIC_URL}}img/redheart.png'></img>
+									{% else %}
+									   <img class="heartimage" src='{{STATIC_URL}}img/greyheart.png'></img>
+									{% endif %}		                        
+			                        </div>
+			                        
+			                        <div class='iglikestxt'>
+			                        Likes: {{ photo.instagram_likes }}
+			                        </div>		                        
 		                        </div>
 		                        
-		                        <div class="photocommentformclass">
-		                        <form action="" method="post" id="comment_form_{{ photo.instagram_photo_id }}" accept-charset="utf-8">{% csrf_token %}
-		                        {{ form }}
-		                        <input value="Send" id="send_msg" onclick="send_comment('{{ photo.instagram_photo_id }}');" type="button" />
-		                        </form>
+		                        <div class="commentsection">
+			                        <div class="photocommentformclass">
+			                        <form action="" method="post" id="comment_form_{{ photo.instagram_photo_id }}" accept-charset="utf-8">{% csrf_token %}
+			                        {{ form }}
+			                        <input class="commentsendbutton" value="Send" id="send_msg" onclick="send_comment('{{ photo.instagram_photo_id }}');" type="button" />
+			                        </form>
+			                        </div>
 		                        </div>
-		                        
 		                        		                        
 		                    </div>
 		                    {% endfor %} 
@@ -84,16 +89,7 @@
         </footer>
     </article>
 
-    <aside>
-        <div id="contact_errors">TESTX</div>
-		<form action="" method="post" id="contact_form" accept-charset="utf-8">{% csrf_token %}
-		  <table>
-		<!--  {{form}} -->
-		  </table>
-		  <p><input value="Send Message" id="send_msg" onclick="send_message();" type="button" /></p>
-		</form>
 
-    </aside>
     <aside>
         <h3>Support Talented Users of Instagram Web Site</h3>
         <p>Please spread the word!</p>

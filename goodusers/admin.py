@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _  # @UnusedImport
 
 from .models import GoodUser
 from photos.models import Photo
