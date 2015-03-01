@@ -12,12 +12,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="apple-touch-icon" href="{{STATIC_URL}}apple-touch-icon.png">
 
+        {% block stylesheets %}
         <link rel="stylesheet" href="{{STATIC_URL}}css/normalize.min.css">
         <link rel="stylesheet" href="{{STATIC_URL}}css/main.css">
-
+        {% endblock stylesheets %}
+        
+        {% block javascript %}
         <script src="{{STATIC_URL}}js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
         <script src="{{STATIC_URL}}js/main.js"></script>
         {% dajaxice_js_import %}
+        {% endblock javascript %}
     </head>
     <body>
         <!--[if lt IE 8]>
@@ -26,11 +30,17 @@
 
         <div class="header-container">
             <header class="wrapper clearfix">
-            <img src="{{STATIC_URL}}img/squaresensor-final-fill-frame-68x68.png" class="headerimage"></img>
-                <h1 class="title">SquareSensor {% block title %}{% endblock %}</h1>
+                <div>
+                <div class="sitetitlebadge">
+                <a href="{% url 'apphome' %}"><img src="{{STATIC_URL}}img/squaresensor-final-fill-frame-68x68.png" class="headerimage"></img></a>
+                </div>
+                <div class="sitetitletext">
+                    <h1>SquareSensor {% block title %}{% endblock %}</h1>
+                </div>
+                </div>
                 <nav>
                     <ul>
-                        <li><a href="{% url 'apphome' %}">Home</a></li>
+                        <li><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
                         <li><a href="{% url 'goodusers:index' %}">Browse</a></li>
                         <li><a href="{% url 'login:index' %}">My Account</a></li>
                     </ul>

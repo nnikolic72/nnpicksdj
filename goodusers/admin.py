@@ -196,6 +196,8 @@ class GoodUserAdmin(admin.ModelAdmin):
     '''Add fields by which you want to sort a model'''
     ordering = ('user_name',)
     
+    prepopulated_fields = {"instagram_user_name": ("user_name",)}
+    
     '''Add fields from the model by which we want to filter list'''
     list_filter = ('to_be_processed', 'instagram_user_name_valid', 
                    'last_processed_date', 'creation_date',

@@ -16,3 +16,6 @@ git push heroku master
 // Heroku status
 cd nnpicksdj
 heroku ps
+
+//WIndows Powerhell example
+$env:DJANGO_SETTINGS_MODULE="nnpicksdj.settings.local"

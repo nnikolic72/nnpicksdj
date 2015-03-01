@@ -1,8 +1,5 @@
 from django.contrib import admin
 
-from import_export import resources
-from import_export.admin import ImportExportModelAdmin
-
 from .models import Category
 
 # Register your models here.
@@ -39,6 +36,7 @@ class CategoryAdmin(admin.ModelAdmin):
         self.message_user(request, buf)
     process_imported_categories.short_description = 'Process imported categories - create hierarchy'         
         
+    prepopulated_fields = {"slug": ("title",)}
     
     actions = (process_imported_categories,)
     
@@ -58,6 +56,7 @@ class CategoryAdmin(admin.ModelAdmin):
                  ), 
                  ]
     
+'''    
 class CategoryResource(resources.ModelResource):
 
     class Meta:
@@ -67,6 +66,7 @@ class CategoryResource(resources.ModelResource):
 class CategoryResourceAdmin(ImportExportModelAdmin): 
     resource_class = CategoryResource
     pass    
-       
-#admin.site.register(Category, CategoryAdmin)    
-admin.site.register(Category, CategoryResourceAdmin)
+'''
+           
+admin.site.register(Category, CategoryAdmin)    
+#admin.site.register(Category, CategoryResourceAdmin)

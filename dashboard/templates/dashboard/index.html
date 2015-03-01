@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block javascript %}
+{{ block.super }}
+<script src="{{STATIC_URL}}js/emailsubmit.js"></script>
+{% endblock javascript %}
+
+{% block pagetitle %}- Welcome @{{ user.username }}
+{% endblock %}
+
+{% block content %}
+    <article>
+        <section>
+        <h2>Welcome @{{ user.username }}</h2>
+        
+        {% if not user.email %}
+        <article>
+	        <div class='emailformcontainer'>
+	        <p>Please enter your e-mail address</p>
+	        <form action="" method="post" id="email_form" accept-charset="utf-8">
+	            {% csrf_token %}
+		        {{ emailform }}
+	            <input class="submitemailbutton" value="Send" id="send_email" onclick="send_email();" type="button" />
+            </form>	 
+            <div id="thankyoumessage"></div>       
+        <article>
+        {% endif %}
+        </section>
+    </article>
+
+{% endblock %}  

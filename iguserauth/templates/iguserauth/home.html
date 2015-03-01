@@ -21,14 +21,14 @@ function openPopup(url) {
 {% block content %}
 <article>
     <section>
-        <h3>Access all resources available on SquareSensors by logging in through Instagram<h3>
-        <h3>Login with instagram</h3>
-        <p><a href='{% url "socialauth_begin" "instagram" %}'>Login with Instagram</a></p>        
-    <section>
-    <section>
-        <h2>Logout<h2>
-        <h2>Disconnect completely from Instagram</h2>
-        <h2><a href='{% url "socialauth_disconnect" "instagram" %}'>click here</a></h2>
+        <h3>Access all SquareSensor features by signing in!<h3>
+        <h2>Important:</h2>
+        <p>1. By signing up through Instagram web site you will open an account on our site. It is completely free and safe.</p>
+        <p>2. We can not access your Instagram account information. Sign up process is performed on Instagram web site. Your password is safe with them.</p>
+        <p>3. After sigining up, please fill in your e-mail address. Your e-mail address will be used strictly for SquareSensor web site interaction.
+        It will not be sold, borrowed or misused in any way.</p>
+        <b>Login with instagram - click their logo and sign up:</b>
+        <p><a href='{% url "socialauth_begin" "instagram" %}'><img src="{{STATIC_URL}}img/instgram_button.jpg"></img></a></p>        
     <section>    
 </article>
 

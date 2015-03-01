@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import ugettext as _  # @UnusedImport
+from django.utils import timezone
 
 from .models import Photo
 #from goodusers.models import GoodUser
@@ -9,6 +10,7 @@ from libs.instagram.tools import InstagramSession
 class PhotoAdmin(admin.ModelAdmin):
     '''Photos model Admin definition'''
     
+        
     def get_instagram_photo_info(self, api, p_photo):
         '''Retrieves information about on Instagram photo
         
@@ -29,7 +31,8 @@ class PhotoAdmin(admin.ModelAdmin):
             p_photo.instagram_standard_resolution_URL = \
                 l_photo.get_standard_resolution_url()
             p_photo.instagram_link_URL = l_photo.link
-            p_photo.instagram_caption = l_photo.caption
+            #l_cleaned_caption = self.cleanup_instagram_caption_text(l_photo.caption)
+            p_photo.instagram_caption = l_photo.caption.text
             #p_photo.instagram_tags = ','.join(l_photo.tags)
             p_photo.instagram_created_time = l_photo.created_time
             p_photo.instagram_likes = l_photo.like_count
@@ -54,6 +57,7 @@ class PhotoAdmin(admin.ModelAdmin):
         for obj in queryset:
             obj = self.get_instagram_photo_info(ig_session, obj)
             obj.instagram_photo_processed = True
+            obj.last_processed_date = timezone.datetime.now()
             obj.save()
             l_counter += 1
             

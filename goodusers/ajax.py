@@ -60,3 +60,6 @@ def send_comment(req, p_photo_id, form):
         comment_action_result = my_likes.comment_instagram_media(f.data['comment'])
                 
     return json.dumps({'status': comment_action_result})
+
+
+

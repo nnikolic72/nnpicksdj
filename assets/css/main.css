@@ -163,8 +163,31 @@ nav a:hover {
 
 /* GoodUsers CSS styles ----------------------------------- */
 
+
+.sitetitlebadge {
+    float: left;
+    margin-left: 5px;
+    height: 74px;
+}
+
+.sitetitletext {
+
+    float: left;
+    margin-left: 5px;
+    font-size: 18px;
+    color: white;
+    height: 74px;
+
+}
+
 .textaligncenter {
     text-align: center;
+}
+
+.figcaptionstyle {
+    text-align: center;
+    font-size: 10px;
+    font-style: italic;
 }
 
 .headerimage {
@@ -181,6 +204,7 @@ nav a:hover {
     border-width: 3px;
     margin: 1px;
     width: 30%;
+    box-shadow: 0 5px 5px #B5ACA7;    
 }
 
 .gublock, .gublockheader {

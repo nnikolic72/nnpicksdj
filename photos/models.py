@@ -44,8 +44,10 @@ class Photo(models.Model):
     good_user_id = models.ForeignKey(GoodUser, null=True)
     instagram_likes = models.IntegerField(default=0, null=True, blank=True)
     instagram_comments = models.IntegerField(default=0, null=True, blank=True)
+    '''Time-stamp when was the last time Photo  was updated using Instagram API'''
+    last_processed_date = models.DateTimeField('Photo processed date', null=True, blank=True)
     
     creation_date = models.DateTimeField('Photo creation date', auto_now_add=True,
-                                         default=datetime.datetime.now())
+                                         )
     last_update_date = models.DateTimeField('Photo last update date', auto_now=True,
-                                            default=datetime.datetime.now())    
+                                            )    

@@ -13,7 +13,7 @@
 	                
 	                <figure class='textaligncenter'>
 	                    <a href='{{good_user.instagram_user_profile_page_URL}}' target='_blank'><img src='{{good_user.instagram_profile_picture_URL}}'></img></a>
-	                    <figcaption>{{good_user.instagram_user_name}} profile picture</figcaption>
+	                    <figcaption class="figcaptionstyle">{{good_user.instagram_user_name}} profile picture</figcaption>
 	                </figure>
 	                
 	                <div class='textaligncenter'>
@@ -42,8 +42,9 @@
 		                <h3>Top Photos</h3>
 		                    {% for photo in photos %}
 		                    <div class='igthumbnailcontainer'>
-		                        <div>
-		                            <a href='{{ photo.instagram_link_URL }}' target='_blank'><img src='{{ photo.instagram_thumbnail_URL }}'></img></a>
+		                        <div >
+		                            <a href='{{ photo.instagram_link_URL }}' target='_blank'><img src='{{ photo.instagram_thumbnail_URL }}' title='{{ photo.instagram_caption }}'></img></a>
+		                            
 		                        </div>
 		                        
 		                        <div class="likessection">

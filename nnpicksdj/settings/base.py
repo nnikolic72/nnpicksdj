@@ -26,13 +26,6 @@ from ConfigParser import ConfigParser  # @UnusedImport
 PROJECT_DIR = Path(__file__).ancestor(3)
 BASE_DIR = PROJECT_DIR.child('nnpicksdj')
 
-'''
-TEMPLATE_DIRS = [BASE_DIR + '\\..\\nnpicksdj\\templates\\nnpicksdj', 
-                 BASE_DIR + '\\..\\templates', 
-                 BASE_DIR + '\\..\\templates\\admin', 
-                 ]
-'''
-
 TEMPLATE_DIRS = (PROJECT_DIR.child("nnpicksdj").child("templates").child("nnpicksdj"),
                  )
 
@@ -64,13 +57,13 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social_auth',
-#    'csvimport',  # use AppConfig for django >=1.7 csvimport >=2.2
-    'import_export',
+    'csvimport',  # use AppConfig for django >=1.7 csvimport >=2.2
     'dajaxice',
     'goodusers',
     'photos',
     'iguserauth',
     'categories',
+    'dashboard',
 )
 
 
@@ -95,7 +88,7 @@ AUTHENTICATION_BACKENDS = (
 INSTAGRAM_AUTH_EXTRA_ARGUMENTS = {'scope': 'likes comments relationships'}
 
 LOGIN_URL          = '/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 LOGIN_ERROR_URL    = '/login/error/'
 
 
