@@ -175,9 +175,9 @@ STATICFILES_FINDERS = (
 )
 
 STATIC_URL = '/static/'
-#STATIC = BASE_DIR + '/static/'
-#STATIC_ROOT = BASE_DIR + '/static/'
-
-#STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
 
+
+# DAJAX
+#DAJAXICE_MEDIA_PREFIX = "dajaxice"
+DAJAXICE_DEBUG = True

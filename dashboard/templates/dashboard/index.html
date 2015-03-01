@@ -20,12 +20,19 @@
 	        <form action="" method="post" id="email_form" accept-charset="utf-8">
 	            {% csrf_token %}
 		        {{ emailform }}
-	            <input class="submitemailbutton" value="Send" id="send_email" onclick="send_email();" type="button" />
+	            <input class="submitemailbutton" value="Send" id="send_email" onclick="send_dashboard_email();" type="button" />
             </form>	 
             <div id="thankyoumessage"></div>       
         <article>
         {% endif %}
         </section>
+        
+        <section>
+        <p>Browse your squaresensor feed</p>
+        <p>Find talented Instagarm photographers</p>
+        <p>Configure your preferences</p>
+        <p>Find new Instagram friends (requires configuring preferences)</p>
+        </section>        
     </article>
 
 {% endblock %}  
