@@ -8,7 +8,7 @@ from .forms import EmailForm
 class DashboardIndexView(TemplateView):
     '''View Good User Details'''
     
-    template_name = 'dashboard/index.html'
+    template_name = 'members/index.html'
     
     def get(self, request, *args, **kwargs):
         '''Serve GET request'''

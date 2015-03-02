@@ -27,11 +27,7 @@ function like_callback(data){
     liketxt = liketxt.concat(data.photo_id);
     $(liketxt).html(data.no_of_likes);
     
-    var width = $(idname).width() - 2 ;    // Current image width
-    var height = $(idname).height() - 2;  // Current image height
-    $(imgname).css("height", height);
-    $(imgname).css("width", width);
-            
+
     //alert(data.photo_id);
     //alert(data.like_action_result);
     if (data.like_action_result == 'like') {
@@ -61,12 +57,16 @@ function like_callback(data){
 function like(p_photo_id) {
     idname = '#imglike_';
     idname = idname.concat(p_photo_id);
-    
-    var width = $(idname).width() - 2 ;    // Current image width
-    var height = $(idname).height() - 2;  // Current image height
+    //ajax_loader-small
+    html_text = '<img class="heartimage"';
+    html_text = html_text.concat(' id="');
+    html_text = html_text.concat(imgname);
+    html_text = html_text.concat('" src="');
+    html_text = html_text.concat(data.static_url);
+    html_text = html_text.concat('img/ajax_loader-small.gif"></img>');
+    $(idname).html(html_text);
         
-    $(idname).css("height", height);
-    $(idname).css("width", width);
+
     Dajaxice.goodusers.like(like_callback, {'p_photo_id':p_photo_id});
 }
 

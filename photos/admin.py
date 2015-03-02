@@ -32,7 +32,11 @@ class PhotoAdmin(admin.ModelAdmin):
                 l_photo.get_standard_resolution_url()
             p_photo.instagram_link_URL = l_photo.link
             #l_cleaned_caption = self.cleanup_instagram_caption_text(l_photo.caption)
-            p_photo.instagram_caption = l_photo.caption.text
+            try:
+                p_photo.instagram_caption = l_photo.caption.text
+            except:
+                # no caption on the photo
+                p_photo.instagram_caption = None
             #p_photo.instagram_tags = ','.join(l_photo.tags)
             p_photo.instagram_created_time = l_photo.created_time
             p_photo.instagram_likes = l_photo.like_count
@@ -78,9 +82,10 @@ class PhotoAdmin(admin.ModelAdmin):
         self.message_user(request, buf)
     process_photos_by_instagram_api.short_description = 'Process photos by Instagram API'        
             
-    list_display = ('instagram_photo_id', 'good_user_id', 'photo_rating', 'admin_thumbnail', )
+    list_display = ('instagram_photo_id', 'good_user_id', 'friend_id', 
+                    'photo_rating', 'admin_thumbnail', 'instagram_photo_processed', )
     
-    list_filter = ('instagram_photo_processed', 'good_user_id', )
+    list_filter = ('instagram_photo_processed', 'good_user_id', 'friend_id' )
     
     ordering = ('good_user_id', '-photo_rating', )
     
@@ -90,6 +95,7 @@ class PhotoAdmin(admin.ModelAdmin):
     fieldsets = [
         ('General Information', {'fields': ['instagram_photo_id', 
                                             'good_user_id',
+                                            'friend_id',
                                             'instagram_caption',
                                             'instagram_tags',
                                             'instagram_photo_valid',

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block javascript %}
+{{ block.super }}
+<script src="{{STATIC_URL}}js/emailsubmit.js"></script>
+{% endblock javascript %}
+
+{% block pagetitle %}- Welcome @{{ user.username }}
+{% endblock %}
+
+{% block content %}
+    <article>
+        <section>
+        <h2>Welcome @{{ user.username }}</h2>
+        
+        {% if not user.email %}
+
+	        <div class='emailformcontainer' id='emailformcontainer'>
+		        <p>Please enter your e-mail address</p>
+		        <form action="" method="post" id="email_form" accept-charset="utf-8">
+		            {% csrf_token %}
+			        {{ emailform }}
+		            <input class="submitemailbutton" value="Send" id="send_email" onclick="send_dashboard_email();" type="button" />
+	            </form>
+            </div>	 
+            <div id="thankyoumessage"></div>      
+        
+        {% endif %}
+        </section>
+        
+        <section>
+        <p>Configure your preferences</p>        
+        <p>Browse your squaresensor feed</p>
+        <a href='{% url 'goodusers:index' %}'><p>Find talented Instagram photographers</p></a>
+        <a href='{% url 'friends:index' %}'><p>Find new Instagram friends (requires configuring preferences)</p></a>
+        </section>        
+    </article>
+
+{% endblock %}  

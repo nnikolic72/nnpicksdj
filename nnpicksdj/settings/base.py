@@ -60,10 +60,11 @@ INSTALLED_APPS = (
     'csvimport',  # use AppConfig for django >=1.7 csvimport >=2.2
     'dajaxice',
     'goodusers',
+    'friends',    
     'photos',
     'iguserauth',
     'categories',
-    'dashboard',
+    'members',
 )
 
 
@@ -88,7 +89,7 @@ AUTHENTICATION_BACKENDS = (
 INSTAGRAM_AUTH_EXTRA_ARGUMENTS = {'scope': 'likes comments relationships'}
 
 LOGIN_URL          = '/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
+LOGIN_REDIRECT_URL = '/members/'
 LOGIN_ERROR_URL    = '/login/error/'
 
 
@@ -181,3 +182,22 @@ STATIC_URL = '/static/'
 # DAJAX
 #DAJAXICE_MEDIA_PREFIX = "dajaxice"
 DAJAXICE_DEBUG = True
+
+
+# APP settings: goodusers
+GOODUSERS_FIND_TOP_N_PHOTOS = 10 # how may best photos to find
+GOODUSERS_SEARCH_N_PHOTOS = 500 # how many last photos to search while finding the best ones
+
+# APP settings: friends
+FRIENDS_FIND_TOP_N_PHOTOS = 5 # how may best photos to find
+FRIENDS_SEARCH_N_PHOTOS = 100 # how many last photos to search while finding the best ones
+# Friends inclusion thresholds
+FRIENDS_TR_LAST_POST_BEFORE_DAYS = 2
+FRIENDS_TR_MIN_MEDIA_COUNT = 50
+FRIENDS_TR_MAX_MEDIA_COUNT = float("inf")
+FRIENDS_TR_MIN_FOLLOWINGS = 100
+FRIENDS_TR_MAX_FOLLOWINGS = 900
+FRIENDS_TR_MIN_FOLLOWERS = 200
+FRIENDS_TR_MAX_FOLLOWERS = 800
+FRIENDS_TR_MIN_FF_RATIO = 0.85
+FRIENDS_TR_MAX_FF_RATIO = 4

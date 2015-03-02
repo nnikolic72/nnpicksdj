@@ -4,8 +4,9 @@ Created on Feb 28, 2015
 @author: tanja
 '''
 
-import dj_database_url
+import dj_database_url  # @UnresolvedImport
 from memcacheify import memcacheify  # @UnresolvedImport
+CACHES = memcacheify()
 
 #insert into requirements.txt:
 #

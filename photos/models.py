@@ -1,8 +1,9 @@
-import datetime
+#import datetime
 from django.db import models
 from django.utils.translation import ugettext as _
 
 from goodusers.models import GoodUser
+from friends.models import Friend
 
 # Create your models here.
 
@@ -41,7 +42,8 @@ class Photo(models.Model):
                                        help_text='Photo rating relative to users other photos'
                                        )
                
-    good_user_id = models.ForeignKey(GoodUser, null=True)
+    good_user_id = models.ForeignKey(GoodUser, null=True, blank=True)
+    friend_id = models.ForeignKey(Friend, null=True)
     instagram_likes = models.IntegerField(default=0, null=True, blank=True)
     instagram_comments = models.IntegerField(default=0, null=True, blank=True)
     '''Time-stamp when was the last time Photo  was updated using Instagram API'''

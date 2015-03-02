@@ -23,6 +23,17 @@ var Dajaxice = {
     }
     
 ,
+    members: {
+    
+    send_email: function(callback_function, argv, custom_settings){
+        return Dajaxice.call('members.send_email', 'POST', callback_function, argv, custom_settings);
+    }
+
+    
+    
+    }
+    
+,
     
 
     get_cookie: function(name)

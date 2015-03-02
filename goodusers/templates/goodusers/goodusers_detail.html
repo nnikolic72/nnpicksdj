@@ -48,7 +48,7 @@
 		                        </div>
 		                        
 		                        <div class="likessection">
-		                        	<div class='iglikebutton' onclick="like('{{ photo.instagram_photo_id }}');" id='likesdiv{{ photo.instagram_photo_id }}'>
+		                        	<div class='iglikebutton' onclick="like('{{ photo.instagram_photo_id }}', '{{STATIC_URL}}');" id='likesdiv{{ photo.instagram_photo_id }}'>
 									{% if photo.instagram_photo_id in liked_photos %}
 									   <img class="heartimage" id='imglike_{{ photo.instagram_photo_id }}' src='{{STATIC_URL}}img/redheart.png'></img>
 									{% else %}
