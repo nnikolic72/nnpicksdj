@@ -1,11 +1,14 @@
-.fivethumbscontainer {
-    margin: 2px;
-}
 
 .friendthumbcontainer {
     margin: 2px;
     float: left;
     align: left;    
+}
+
+fivethumbscontainersuper {
+    margin: 2px;
+    align: left; 
+    height: 300px;
 }
 
 .friendthumb {
@@ -40,3 +43,6 @@
 	float: right;
 }
 
+.friendusername {
+    text-align: center;
+}

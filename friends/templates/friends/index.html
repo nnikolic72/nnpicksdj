@@ -4,6 +4,12 @@
     <link rel="stylesheet" href="{{STATIC_URL}}css/friends-table.css">
     <link rel="stylesheet" href="{{STATIC_URL}}css/friends.css">
 {% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{{STATIC_URL}}js/friends.js"></script>
+{% endblock %}
+
 {% block pagetitle %} - Search for Instagram Friends{% endblock %}
 
 {% block content %}
@@ -14,68 +20,76 @@
 			{% if friends_list %}
 			<div class="introduction" id='introduction_text'>
 			<p>This is a list of your potential new Instagram friends and their best photos. They have similar photographic interests as you have.</p>
-			<p>Please be polite and supportive when interacting with them. Please do not spam them with comments and likes.</p>
+			<p>Please be polite and supportive when interacting with people. Please do not spam with comments and likes.</p>
+			<p>You will be allowed to interact with one photo per user.</p>
 			</div>
 
 
 			        {% for friend in friends_list %}
-				    <div class="friends-table">
-				    <table id="friends-table" summary="Potential Instagram Friends">
-				        <tbody>
-				            <tr>
-				                <td>Username</td>
-				                <td>Interacted</td>
-				                <td>Result</td>
-				                <td>Follow</td>
-				            </tr>
-			            <tr>
-				            <td><a href='{% url 'friends:details' friend.instagram_user_name %}'>{{ friend.instagram_user_name }}</a></td>
-				            <td></td>
-				            <td></td>
-				            <td></td>
-				        </tr>
-
-			        <tr>
-		        	<td colspan="4">
-		        	<div class="fivethumbscontainer">
-			        	{% if photos_dict %}
-		                    {% for key, val in photos_dict.items %}
-		                        {% if key == friend.id %}
-			                        {% if val %}
-			                            {% for photo in val %}
-					                        <div class="friendthumbcontainer">		                            
-					                            <img class="friendthumb" id="friendthumb_{{ photo.instagram_photo_id }}" src="{{ photo.instagram_thumbnail_URL }}" title="{{ photo.instagram_caption }}"></img>
-					                        </div>
-				                        {% endfor %}
-				                    {% else %}
-				                    <p>No photos available for this user.</p>		                        
-			                        {% endif %}
-			                    {% endif %}
-		                    {% endfor %}
-
-	                    {% endif %}
-                    <div>
-                    </td>
-		            </tr>
-		            <tr>
-				        <td colspan="4">
-				        <div id="rate_friend_{{ friend.instagram_user_id }}" class="ratingcontainer">
-                            <div class="ratetext">
-                            Rate on Squaresensor
-                            <br>@{{friend.instagram_user_name}}
-                            </div>
-					        <div class="fivestars">FIVE STARS</div>
-				        </div>
-				        </td>
-			        </tr>	
-			        <tr>
-				        <td colspan="4">
-				        <p>Best photos by @{{friend.instagram_user_name}}. Click on the photo to interact.
-				        </td>
-			        </tr>				       
-			        </tbody>
-                </table>
-                </div>				        
+				        <div class="friends-table">
+					        <table id="friends-table" summary="Potential Instagram Friends">
+						    <tbody>
+					            <tr>
+					                <td>Username</td>
+					                <td>Interacted</td>
+					                <td>Result</td>
+					                <td>Follow</td>
+					            </tr>
+					            <tr>
+						            <td><div class="class="friendusername">
+						            <img src="{{ friend.instagram_profile_picture_URL}}"></img><br>
+						            <a href='{% url 'friends:details' friend.instagram_user_name %}'>{{ friend.instagram_user_name }}</a></div></td>
+						            <td></td>
+						            <td></td>
+						            <td></td>
+						        </tr>
+		
+					            <tr>
+				        	    <td colspan="4">
+				        	        <div class="fivethumbscontainersuper">
+						        	    <div class="fivethumbscontainer" id="fivethumbscontainer_{{ friend.id }}">
+								        	{% if photos_dict %}
+							                    {% for key, val in photos_dict.items %}
+							                        {% if key == friend.id %}
+								                        {% if val %}
+								                            {% for photo in val %}
+										                        <div class="friendthumbcontainer">		                            
+										                            <img class="friendthumb" id="friendthumb_{{ photo.instagram_photo_id }}" 
+										                             src="{{ photo.instagram_thumbnail_URL }}" 
+										                             title="{{ photo.instagram_caption }}"
+										                             onclick="friend_photo_selected('{{ photo.instagram_photo_id }}', '{{ key }}', '{{ STATIC_URL }}', '{{ photo.instagram_low_resolution_URL }}');"></img>
+										                        </div>
+									                        {% endfor %}
+									                    {% else %}
+									                    <p>No photos available for this user.</p>		                        
+								                        {% endif %}
+								                    {% endif %}
+							                    {% endfor %}
+						                    {% endif %}
+				                        <div>
+				                    </div>
+		                        </td>
+				                </tr>
+					            <tr>
+							        <td colspan="4">
+							        <div id="rate_friend_{{ friend.instagram_user_id }}" class="ratingcontainer">
+			                            <div class="ratetext">
+			                            Rate on Squaresensor
+			                            <br>@{{friend.instagram_user_name}}
+			                            </div>
+								        <div class="fivestars">FIVE STARS</div>
+							        </div>
+							        </td>
+						        </tr>	
+						        <tr>
+							        <td colspan="4">
+							        <p>Best photos by @{{friend.instagram_user_name}}. Click on the photo to interact.
+							        </td>
+						        </tr>				       
+					        </tbody>
+		                    </table>
+	                    </div>
+				        
 			        {% endfor %}
 
 			{% else %}

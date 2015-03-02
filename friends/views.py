@@ -9,6 +9,7 @@ from photos.models import Photo
 class FriendsListView(TemplateView):
     '''Complex version of IndexView'''
     
+    
     template_name = 'friends/index.html'
     friends_list = Friend.objects.order_by('instagram_user_name')
     categories_list = Category.objects.filter(parent__isnull=True).order_by('title')
