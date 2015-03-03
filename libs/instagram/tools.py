@@ -13,7 +13,10 @@ import logging
 from instagram import InstagramAPI
 from instagram.bind import InstagramAPIError, InstagramClientError
 
+from django.conf import settings
+
 from nnpicksdj.settings.local import INSTAGRAM_API_KEY
+from friends.models import Friend
 #from goodusers.models import GoodUser
 
 
@@ -147,7 +150,7 @@ class InstagramSession():
         
         return self.api.x_ratelimit_remaining, self.api.x_ratelimit      
 
-
+        
 class MyLikes:
     '''Store my likes'''
     
@@ -394,4 +397,119 @@ class BestPhotos:
                     break
                 l_cnt += 1
 
+
+class BestFollowers():
+    '''Class for finding the best Instagram followers - Friends
+    
+        Configuration for searching new friends:
+        FRIENDS_TR_ANALYZE_N_FRIENDS
+        FRIENDS_TR_LAST_POST_BEFORE_DAYS
+        FRIENDS_TR_MIN_MEDIA_COUNT
+        FRIENDS_TR_MAX_MEDIA_COUNT
+        FRIENDS_TR_MIN_FOLLOWINGS
+        FRIENDS_TR_MAX_FOLLOWINGS
+        FRIENDS_TR_MIN_FOLLOWERS
+        FRIENDS_TR_MAX_FOLLOWERS
+        FRIENDS_TR_MIN_FF_RATIO
+        FRIENDS_TR_MAX_FF_RATIO
+    '''
+    l_instgram_user_id = None
+    l_analyze_n_photos = None
+    l_instagram_api = None 
                 
+    def __init__(self, p_instgram_user_id, p_analyze_n_photos, p_instagram_api):
+        '''Initialize class'''
+        
+        self.l_instgram_user_id = p_instgram_user_id
+        self.l_analyze_n_photos = p_analyze_n_photos
+        self.l_instagram_api = p_instagram_api      
+     
+    def is_user_active_in_last_n_days(self, p_instagram_follower_id, n):
+        '''Returnts activity of user
+        Parameters:
+        n - number of days in the pas when user had to post on Instagram
+        
+        Returns
+        Boolean - True if user was active in last n days
+        '''
+        l_is_user_active = False
+        
+        l_best_photos = BestPhotos(p_instagram_follower_id, 1, 1, self.l_instagram_api)
+        if l_best_photos:
+            l_recent_photos = l_best_photos.get_instagram_photos()
+            
+            if l_recent_photos:
+                l_photo = l_recent_photos[0] # get the last photo
+                l_time_delta = datetime.today() - l_photo.created_time
+                
+                if l_time_delta <= n:
+                    l_is_user_active = True
+        
+        return l_is_user_active
+                    
+        
+         
+           
+    def get_best_instagram_followers(self):
+        '''Analyze followers and find the best ones'''
+        
+        l_instagram_followers = [] 
+        l_best_instagram_followers = [] 
+        
+        try:
+            l_instagram_followers, x_next = self.l_instagram_api.user_followed_by(count=self.l_analyze_n_photos)
+        except InstagramAPIError as e:
+            logging.exception("get_best_instagram_followers: ERR-00050 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+        except InstagramClientError as e:
+            logging.exception("get_best_instagram_followers: ERR-00051 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+        except IndexError:
+            logging.exception("get_best_instagram_followers: ERR-00052 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+        except:
+            logging.exception("get_best_instagram_followers: ERR-00053 Unexpected error: %s" % (exc_info()[0]))
+            raise
+        
+        if l_instagram_followers:
+            while x_next:
+                try:     
+                    l_next_followers, x_next = self.l_instagram_api.user_followed_by(with_next_url = x_next)
+                except InstagramAPIError as e:
+                    logging.exception("get_best_instagram_followers: ERR-00054 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+                except InstagramClientError as e:
+                    logging.exception("get_best_instagram_followers: ERR-00055 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+                except IndexError:
+                    logging.exception("get_best_instagram_followers: ERR-00056 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+                except:
+                    logging.exception("get_best_instagram_followers: ERR-00057 Unexpected error: %s" % (exc_info()[0]))
+                    raise    
+
+                    
+                l_instagram_followers.extend(l_next_followers)
+                if len (l_instagram_followers) >= self.l_analyze_n_photos:
+                    break
+   
+            for follower in l_instagram_followers:
+                '''Filter only the best followers'''
+                l_exists = Friend.objects.filter(instagram_user_id=follower.id)
+                
+                if l_exists.count() == 0:
+                    l_friends_media_count = follower.counts[u'media']
+                    l_friends_followings = follower.counts[u'follows']
+                    l_friends_followers = follower.counts[u'followed_by']
+                    if l_friends_followers != 0:
+                        l_friends_ff_ratio = l_friends_followings / l_friends_followers
+                    else:
+                        l_friends_ff_ratio = 0
+                    
+                    if (settings.FRIENDS_TR_MIN_MEDIA_COUNT <= l_friends_media_count <= settings.FRIENDS_TR_MAX_MEDIA_COUNT) and \
+                       (settings.FRIENDS_TR_MIN_FOLLOWINGS <= l_friends_followings <= settings.FRIENDS_TR_MAX_FOLLOWINGS) and \
+                       (settings.FRIENDS_TR_MIN_FOLLOWERS <= l_friends_followers <= settings.FRIENDS_TR_MAX_FOLLOWERS) and \
+                       (settings.FRIENDS_TR_MIN_FF_RATIO <= l_friends_ff_ratio <= settings.FRIENDS_TR_MAX_FF_RATIO):
+                            
+                        if self.is_user_active_in_last_n_days(follower.id, settings.FRIENDS_TR_LAST_POST_BEFORE_DAYS):
+                            '''User is active in last N days, passed all requirements
+                               Add it to friends
+                            '''
+                            
+                            l_best_instagram_followers.extend([follower])  
+                                          
+        return l_best_instagram_followers

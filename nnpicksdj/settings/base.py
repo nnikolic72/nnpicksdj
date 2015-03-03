@@ -64,6 +64,7 @@ INSTALLED_APPS = (
     'photos',
     'iguserauth',
     'categories',
+    'attributes',
     'members',
 )
 
@@ -192,6 +193,7 @@ GOODUSERS_SEARCH_N_PHOTOS = 500 # how many last photos to search while finding t
 FRIENDS_FIND_TOP_N_PHOTOS = 5 # how may best photos to find
 FRIENDS_SEARCH_N_PHOTOS = 100 # how many last photos to search while finding the best ones
 # Friends inclusion thresholds
+FRIENDS_TR_ANALYZE_N_FRIENDS = 1000
 FRIENDS_TR_LAST_POST_BEFORE_DAYS = 2
 FRIENDS_TR_MIN_MEDIA_COUNT = 50
 FRIENDS_TR_MAX_MEDIA_COUNT = float("inf")
@@ -201,3 +203,6 @@ FRIENDS_TR_MIN_FOLLOWERS = 200
 FRIENDS_TR_MAX_FOLLOWERS = 800
 FRIENDS_TR_MIN_FF_RATIO = 0.85
 FRIENDS_TR_MAX_FF_RATIO = 4
+
+#General threshold - when to stop processing Instagram requests
+INSTAGRAM_API_THRESHOLD = 500

@@ -1,10 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from categories.models import Category
+
 from goodusers.models import GoodUser
 from friends.models import Friend
 
+from categories.models import Category
+from attributes.models import Attribute
 # Create your models here.
 
 class Member(models.Model):
@@ -15,6 +17,7 @@ class Member(models.Model):
     
     # Which photo categories user belongs to
     photo_categories = models.ManyToManyField(Category, null=True, blank=True)
+    photo_attributes = models.ManyToManyField(Attribute, null=True, blank=True)
     
     # Which Goodusers this Member follows
     goodusers_followings = models.ManyToManyField(GoodUser, null=True, blank=True, through='MemberToGooduser') 

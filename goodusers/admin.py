@@ -1,13 +1,20 @@
 from django.contrib import admin, messages
 from django.utils import timezone
+from django.conf import settings
 from django.utils.translation import ugettext as _  # @UnusedImport
 
-from .models import GoodUser
+from .models import (
+                     GoodUser, GoodUserRaw
+                     )
 from photos.models import Photo
+from friends.models import Friend
 
-from libs.instagram.tools import InstagramSession, BestPhotos
 
-from django.conf import settings
+from libs.instagram.tools import (
+                                  InstagramSession, BestPhotos,
+                                  BestFollowers
+                                  )
+
    
 class GoodUserAdmin(admin.ModelAdmin):
     '''Definition of Admin interface for GoodUsers model'''                                                          
@@ -19,7 +26,94 @@ class GoodUserAdmin(admin.ModelAdmin):
     #l_find_top_n_photos = 10
     l_find_top_n_photos = settings.GOODUSERS_FIND_TOP_N_PHOTOS
     l_search_last_photos = settings.GOODUSERS_SEARCH_N_PHOTOS
-                                                                        
+                                      
+                                      
+    def analyze_gooduser_find_friends(self, request, queryset):
+        '''Action -> Analyze GoodUsers followers and find potential
+           Friends.
+        '''
+        
+        l_analyzed_followers = 0
+        l_found_friends = 0
+        l_analyzed_goodusers = 0
+        
+        queryset = queryset.filter(to_be_processed=True)
+        
+        ig_session = InstagramSession(p_is_admin=True, p_token='')
+        ig_session.init_instagram_API()
+        
+        self.l_instagram_api_limit_start, self.l_instagram_api_limit = \
+             ig_session.get_api_limits()
+        
+        for obj in queryset:
+            obj.to_be_processed_for_friends = False
+            obj.last_processed_friends_date = timezone.datetime.now()
+            obj.times_processed_for_friends = obj.times_processed_for_friends + 1
+            '''get Instagram user data'''
+            self.l_instagram_api_limit_start, self.l_instagram_api_limit = \
+                 ig_session.get_api_limits()
+                 
+            if (ig_session) and \
+               (self.l_instagram_api_limit_start > (settings.FRIENDS_TR_ANALYZE_N_FRIENDS + 50)):
+                '''We have Instagram session and enough API call remaining'''
+                user_search = ig_session.is_instagram_user_valid(obj.instagram_user_name)
+                
+                if user_search:
+                    instagram_user = ig_session.get_instagram_user(user_search[0].id)
+                    
+                    if instagram_user:
+                        l_instagram_user_id = instagram_user.id  
+                        l_number_of_followers = instagram_user.counts[u'followed_by']
+                        if l_number_of_followers < settings.FRIENDS_TR_ANALYZE_N_FRIENDS:
+                            l_analyze_n_followers = l_number_of_followers
+                        else:
+                            l_analyze_n_followers = settings.FRIENDS_TR_ANALYZE_N_FRIENDS
+                        
+                        l_best_instagram_followers = \
+                            BestFollowers(l_instagram_user_id, l_analyze_n_followers, ig_session)
+                            
+                        l_instagram_friends = \
+                            l_best_instagram_followers.get_best_instagram_followers()
+                        l_analyzed_goodusers += 1
+                        
+                        if l_instagram_friends:
+                            '''Found followers - save them to our database'''
+                            for follower in l_instagram_friends:
+                                l_analyzed_followers += 1
+                                l_exists = Friend.objects.filter(instagram_user_id=follower.id)
+                                
+                                if l_exists.count() == 0:
+                                    '''Friend does not exist - add new'''
+                                    l_new_friend = \
+                                        Friend(instagram_user_id=follower.id,
+                                               instagram_user_name=follower.username, instagram_user_name_valid=True,
+                                               gooduser=obj, instagram_user_full_name=follower.full_name,
+                                               instagram_profile_picture_URL=follower.profile_picture,
+                                               instagram_user_bio=follower.bio,
+                                               instagram_user_website_URL=follower.website,
+                                               is_user_active=True,
+                                               number_of_followers=follower.counts[u'followed_by'],
+                                               number_of_followings=follower.counts[u'follows'],
+                                               number_of_media=follower.counts[u'media'],
+                                               instagram_user_profile_page_URL=self.generate_instagram_profile_page_URL(follower.username),
+                                               iconosquare_user_profile_page_URL=self.generate_iconosquare_profile_page_URL(follower.id)
+                                               )
+                                    l_new_friend.save()
+                                    l_found_friends += 1
+                                else:
+                                    '''Friend exists - add new gooduser'''
+                                    l_exists.gooduser.add(obj)
+                                    l_exists.save()
+                                    pass
+            
+                obj.save()    
+        #FRIENDS_TR_ANALYZE_N_FRIENDS
+        
+        buf = 'Analyzed %s Goodusers. Analyzed %s folowers. Found %s Friends' \
+               % (l_analyzed_goodusers, l_analyzed_followers, l_found_friends)
+        self.message_user(request, buf)
+    analyze_gooduser_find_friends.short_description = 'Find new friends from GoodUser'         
+                                                                                
     def analyze_gooduser(self, request, api, p_gooduser):
         '''Do the processing of Good User with Instagram API
            
@@ -28,8 +122,8 @@ class GoodUserAdmin(admin.ModelAdmin):
         '''
         
         if api:
-            user_search = api.is_instagram_user_valid(p_gooduser.instagram_user_name)
-        
+                user_search = api.is_instagram_user_valid(p_gooduser.instagram_user_name)
+            
         if user_search:
             instagram_user = api.get_instagram_user(user_search[0].id)
                 
@@ -209,17 +303,22 @@ class GoodUserAdmin(admin.ModelAdmin):
  
     '''Define a list of actions listed in Admin interface Action combo box'''
     actions = (process_gooduser, set_goodusers_process_true, 
-               set_goodusers_process_false)
+               set_goodusers_process_false, analyze_gooduser_find_friends)
+    
+    filter_horizontal = ('user_category', 'user_attribute', )
     
     '''Determine what is dispalayed on GoodUser Admin Edit form'''
     fieldsets = [
         ('General Information', {'fields': ['user_name', 'full_name', 'email', 
-                                            'instagram_user_name', 'user_category'
+                                            'instagram_user_name'
                                             ]
                                  }
          ),
         ('GoodUser Processing Information', {'fields': ['last_processed_date', 
-                                                        'times_processed', 'to_be_processed'
+                                                        'times_processed', 'to_be_processed',
+                                                        'last_processed_friends_date',
+                                                        'times_processed_for_friends',
+                                                        'to_be_processed_for_friends'
                                                         ]
                                              }
          ),         
@@ -229,7 +328,14 @@ class GoodUserAdmin(admin.ModelAdmin):
                                               'instagram_user_bio', 'instagram_user_website_URL',
                                               'instagram_user_id', 'instagram_user_name_valid']
                                    }
-         ),                
+         ),
+                               
+        ( 'Categories and Attributes', {'fields': ['user_category', 
+                                                        'user_attribute'
+                                                        ]
+                                             }
+         ),
+          
         ('Additional Social Media Information', {'fields': ['twitter_handle', 'facebook_handle',
                                                              'eyeem_handle'
                                                              ],
@@ -246,5 +352,53 @@ class GoodUserAdmin(admin.ModelAdmin):
     ]
     
     
+class GoodUserRawAdmin(admin.ModelAdmin):
+    '''Definition of Admin interface for GoodUsers model'''
+    
+    list_display = ('instagram_user_name', 'to_be_processed',
+                    'instagram_user_name_valid', 'creation_date',
+                    'last_update_date' 
+                    )  
+    
+    '''Add fields from the model by which we want to filter list'''
+    list_filter = ('to_be_processed', 'instagram_user_name_valid', 
+                   'instagram_user_name_valid', 'creation_date',
+                   )
+    
+    '''Add a field from the model by which you want to search'''
+    search_fields = ('instagram_user_name', )  
+    
+    fieldsets = [
+        ('General Information', {'fields': [ 
+                                            'instagram_user_name'
+                                            ]
+                                 }
+         ),
+        ('GoodUser Processing Information', {'fields': [
+                                                        'to_be_processed'
+                                                        ]
+                                             }
+         ),         
+              
+
+        ('Categories and Attributes', {'fields': ['category1', 'category2',
+                                                  'category3', 'category4',
+                                                  'category5',
+                                                  'attribute_black_and_white',
+                                                  'attribute_color',
+                                                  'attribute_hdr',
+                                                  'attribute_minimal',
+                                                  'attribute_abstract',
+                                                  'attribute_heavy_edit',
+                                                  'attribute_macro',
+                                                  'attribute_retro',
+                                                  'attribute_color_splash'          
+                                                  ]
+                                                 }
+         ),                
+    ]
+       
+        
 # Register your models here.
 admin.site.register(GoodUser, GoodUserAdmin)
+admin.site.register(GoodUserRaw, GoodUserRawAdmin)

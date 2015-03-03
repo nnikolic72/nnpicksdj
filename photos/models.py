@@ -5,6 +5,8 @@ from django.utils.translation import ugettext as _
 from goodusers.models import GoodUser
 from friends.models import Friend
 
+from categories.models import Category
+from attributes.models import Attribute
 # Create your models here.
 
 class Photo(models.Model):
@@ -43,7 +45,10 @@ class Photo(models.Model):
                                        )
                
     good_user_id = models.ForeignKey(GoodUser, null=True, blank=True)
-    friend_id = models.ForeignKey(Friend, null=True)
+    friend_id = models.ForeignKey(Friend, null=True, blank=True)
+    photo_category = models.ManyToManyField(Category, null=True, blank=True)
+    photo_attribute = models.ManyToManyField(Attribute, null=True, blank=True)    
+    
     instagram_likes = models.IntegerField(default=0, null=True, blank=True)
     instagram_comments = models.IntegerField(default=0, null=True, blank=True)
     '''Time-stamp when was the last time Photo  was updated using Instagram API'''

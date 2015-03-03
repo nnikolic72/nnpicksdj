@@ -1,6 +1,8 @@
 from django.contrib import admin
 
-from .models import Category
+from .models import ( 
+                     Category, CategoryRaw
+                     )
 
 # Register your models here.
 class CategoryAdmin(admin.ModelAdmin):
@@ -67,6 +69,32 @@ class CategoryResourceAdmin(ImportExportModelAdmin):
     resource_class = CategoryResource
     pass    
 '''
-           
+
+
+class CategoryRawAdmin(admin.ModelAdmin):
+    '''Definition of Admin interface for GoodUsers model'''
+    
+    def process_raw_categories(self, request, queryset):
+        '''Action -> Create categories hierarchy from imported categories CSV'''
+        l_counter = 0
+        l_errors = 0
+                
+        buf = "%s categories processed. %s errors - no parent category" % (l_counter, l_errors)
+        self.message_user(request, buf)
+    process_raw_categories.short_description = 'Process imported categories - create hierarchy'  
+            
+    list_display = ('title', 'parent', 'description',)
+    ordering = ('parent', 'title',)
+    actions = ('process_raw_categories', )
+    
+    fieldsets = [
+                ('Category RAW information', { 'fields': ['title', 'parent',
+                                                          'description'
+                                                      ]
+                                          }
+                 ), 
+                 ]    
+                    
+admin.site.register(CategoryRaw, CategoryRawAdmin)                 
 admin.site.register(Category, CategoryAdmin)    
 #admin.site.register(Category, CategoryResourceAdmin)

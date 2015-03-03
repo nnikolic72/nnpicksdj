@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 from categories.models import Category
+from attributes.models import Attribute
 
 
 # Create your models here.
@@ -68,15 +69,26 @@ class GoodUser(models.Model):
     
     '''Time-stamp when was the last time GoodUser was updated using Instagram API'''
     last_processed_date = models.DateTimeField('GoodUser processed date', null=True, blank=True)
+    '''Time-stamp when was the last time GoodUser was processed for Friends using Instagram API'''
+    last_processed_friends_date = models.DateTimeField('GoodUser processed date', null=True, blank=True)    
     '''Number of times GoodUser is processed'''
     times_processed = models.IntegerField('Number of times processed', default=0, null=False)
+    '''Number of times GoodUser is processed for Friends'''
+    times_processed_for_friends = models.IntegerField('Number of times processed', default=0, null=False)    
     '''GoodUser is marked for processing next time GoodUser Batch Processing is run'''
     to_be_processed = models.BooleanField(default=True, null=False,
                                           help_text=_('Check if you want this Good User to be ' 
                                                      'processed in the next Batch Run'
                                                      )
                                           )
+    '''GoodUser is marked for processing next time GoodUser Batch Processing is run'''
+    to_be_processed_for_friends = models.BooleanField(default=True, null=False,
+                                          help_text=_('Check if you want this Good User to be ' 
+                                                     'processed for friends in the next Batch Run'
+                                                     )
+                                          )    
     user_category = models.ManyToManyField(Category, null=True, blank=True)
+    user_attribute = models.ManyToManyField(Attribute, null=True, blank=True)
     creation_date = models.DateTimeField('GoodUser creation date', auto_now_add=True)
     last_update_date = models.DateTimeField('GoodUser creation date', auto_now=True)
     
@@ -85,4 +97,48 @@ class GoodUser(models.Model):
         ordering = ('user_name',)
         verbose_name = 'Good User'
         verbose_name_plural = 'Good Users'
+    
+
+class GoodUserRaw(models.Model):
+    '''Class for import of CSV data. Import a text file into this model and run Action
+       "Process RAW data to GoodUser
+    '''
+
+    def __str__(self):
+        '''return text for this class'''
+        
+        return(self.instagram_user_name)
+        
+    instagram_user_name = models.CharField(max_length=100, null=False, blank=False)
+    category1 = models.CharField(max_length=100, null=True, blank=True)   
+    category2 = models.CharField(max_length=100, null=True, blank=True) 
+    category3 = models.CharField(max_length=100, null=True, blank=True) 
+    category4 = models.CharField(max_length=100, null=True, blank=True) 
+    category5 = models.CharField(max_length=100, null=True, blank=True)   
+    attribute_black_and_white = models.CharField(max_length=100, null=True, blank=True)
+    attribute_color = models.CharField(max_length=100, null=True, blank=True)
+    attribute_hdr = models.CharField(max_length=100, null=True, blank=True)
+    attribute_minimal = models.CharField(max_length=100, null=True, blank=True)
+    attribute_abstract = models.CharField(max_length=100, null=True, blank=True)
+    attribute_heavy_edit = models.CharField(max_length=100, null=True, blank=True)
+    attribute_macro = models.CharField(max_length=100, null=True, blank=True)
+    attribute_retro = models.CharField(max_length=100, null=True, blank=True)
+    attribute_color_splash = models.CharField(max_length=100, null=True, blank=True)
+    
+    instagram_user_name_valid = models.BooleanField(default=True, null=False,
+                                          help_text=_('Check if Instagram user is valid/exists.')
+                                          )    
+    to_be_processed = models.BooleanField(default=True, null=False,
+                                          help_text=_('Check if you want this Good User to be ' 
+                                                     'processed in the next Batch Run'
+                                                     )
+                                          )    
+    creation_date = models.DateTimeField('GoodUserRaw creation date', auto_now_add=True)
+    last_update_date = models.DateTimeField('GoodUserRaw creation date', auto_now=True)    
+    
+    class Meta:
+        get_latest_by = 'creation_date'
+        ordering = ('instagram_user_name',)
+        verbose_name = 'Good User Raw'
+        verbose_name_plural = 'Good Users Raw'
     

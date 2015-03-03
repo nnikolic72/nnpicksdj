@@ -92,6 +92,9 @@ class PhotoAdmin(admin.ModelAdmin):
     '''Search by foreign key example!'''
     search_fields = ('good_user_id__instagram_user_name', )
     
+    filter_horizontal = ('photo_category', 'photo_attribute', )
+    readonly_fields = ('admin_thumbnail',)
+    
     fieldsets = [
         ('General Information', {'fields': ['instagram_photo_id', 
                                             'good_user_id',
@@ -107,6 +110,13 @@ class PhotoAdmin(admin.ModelAdmin):
                                         ]
                              }
          ),
+                 
+        ( 'Categories and Attributes', {'fields': ['admin_thumbnail', 'photo_category', 
+                                                        'photo_attribute'
+                                                        ]
+                                             }
+         ),      
+                            
         ('Date and time information', {'fields': ['instagram_created_time'
                                                   ]
                                        }
