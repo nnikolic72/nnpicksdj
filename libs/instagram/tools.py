@@ -5,7 +5,9 @@ Created on Feb 17, 2015
 '''
 from __future__ import division
 from sys import exc_info
-from datetime import datetime
+from datetime import (
+                      datetime, timedelta
+                      )
 
 import numpy as np
 import logging
@@ -127,13 +129,15 @@ class InstagramSession():
         '''
         
         instagram_user = None
+        l_user_private = False
         
         if self.api:        
             try:         
                 instagram_user = self.api.user(user_search_result)
             except InstagramAPIError as e:
                 logging.exception("get_instagram_user: ERR-00014 Instagram API Error %s : %s" % (e.status_code, e.error_message))
-
+                if (e.status_code == 400):
+                    l_user_private = True  
             except InstagramClientError as e:
                 logging.exception("get_instagram_user: ERR-00015 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
             except IndexError:
@@ -187,7 +191,7 @@ class MyLikes:
         '''Procedure that likes instagram media with ID  self.photo_id'''
         
         result = 'error'
-        
+        l_user_private = False
         '''Check if media is already liked'''
         has_user_liked_media, no_of_likes = self.has_user_liked_media()  # @UnusedVariable
         if has_user_liked_media:
@@ -196,6 +200,8 @@ class MyLikes:
                 self.instagram_session.api.unlike_media(media_id=self.photo_id)
                 result = 'unlike'
             except InstagramAPIError as e:
+                if (e.status_code == 400):
+                    l_user_private = True                  
                 logging.exception("get_instagram_user: ERR-00032 Instagram API Error %s : %s" % (e.status_code, e.error_message))
             except InstagramClientError as e:
                 logging.exception("get_instagram_user: ERR-00033 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
@@ -210,6 +216,8 @@ class MyLikes:
                 self.instagram_session.api.like_media(media_id=self.photo_id)
                 result = 'like'
             except InstagramAPIError as e:
+                if (e.status_code == 400):
+                    l_user_private = True                
                 logging.exception("get_instagram_user: ERR-00036 Instagram API Error %s : %s" % (e.status_code, e.error_message))
             except InstagramClientError as e:
                 logging.exception("get_instagram_user: ERR-00037 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
@@ -225,7 +233,7 @@ class MyLikes:
         '''Procedure that likes instagram media with ID  self.photo_id'''
         
         result = 'error'
-        
+        l_user_private = False
 
         try:
             self.instagram_session.api.create_media_comment (media_id=self.photo_id,
@@ -233,6 +241,8 @@ class MyLikes:
                                                              )
             result = 'comment'
         except InstagramAPIError as e:
+            if (e.status_code == 400):
+                l_user_private = True            
             logging.exception("get_instagram_user: ERR-00040 Instagram API Error %s : %s" % (e.status_code, e.error_message))
         except InstagramClientError as e:
             logging.exception("get_instagram_user: ERR-00041 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
@@ -242,7 +252,7 @@ class MyLikes:
             logging.exception("get_instagram_user: ERR-00043 Unexpected error: %s" % (exc_info()[0]))
             raise                   
           
-
+        
         return result
     
     
@@ -281,42 +291,48 @@ class BestPhotos:
         Returns:
         Nothing
         '''
-        
+        recent_media = None
+        l_user_private = False
         try:
             recent_media, x_next = self.instagram_session.api.user_recent_media(user_id=self.l_instgram_user_id)
         except InstagramAPIError as e:
+            if (e.status_code == 400):
+                l_user_private = True
             logging.exception("get_instagram_photos: ERR-00008 Instagram API Error %s : %s" % (e.status_code, e.error_message))
-
         except InstagramClientError as e:
             logging.exception("get_instagram_photos: ERR-00009 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+            raise
         except IndexError:
-            logging.exception("get_instagram_photos: ERR-00010 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+            logging.exception("get_instagram_photos: ERR-00010 Instagram search unsuccessful: %s" % (exc_info()[0])) 
+            raise               
         except:
             logging.exception("get_instagram_photos: ERR-00011 Unexpected error: %s" % (exc_info()[0]))
-            raise("get_instagram_user: ERR-00011 Unexpected error: %s" % (exc_info()[0]))    
-
-        if not recent_media:
-            self.l_user_has_photos = False
-            
-        if recent_media and x_next:     
-            while x_next:
-                try:     
-                    media_feed, x_next = self.instagram_session.api.user_recent_media(with_next_url = x_next)
-                except InstagramAPIError as e:
-                    logging.exception("get_instagram_photos: ERR-00012 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+            raise    
         
-                except InstagramClientError as e:
-                    logging.exception("get_instagram_photos: ERR-00013 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
-                except IndexError:
-                    logging.exception("get_instagram_photos: ERR-000114 Instagram search unsuccessful: %s" % (exc_info()[0]))                
-                except:
-                    logging.exception("get_instagram_photos: ERR-00015 Unexpected error: %s" % (exc_info()[0]))
-                    raise("get_instagram_user: ERR-00015 Unexpected error: %s" % (exc_info()[0]))    
-
-                    
-                recent_media.extend(media_feed)
-                if len (recent_media) >= self.l_search_photos_amount:
-                    break
+        if not l_user_private:
+            if not recent_media:
+                self.l_user_has_photos = False
+                
+            if len (recent_media) < self.l_search_photos_amount:            
+                if recent_media and x_next:     
+                    while x_next:
+                        try:     
+                            media_feed, x_next = self.instagram_session.api.user_recent_media(with_next_url = x_next)
+                        except InstagramAPIError as e:
+                            logging.exception("get_instagram_photos: ERR-00012 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+                
+                        except InstagramClientError as e:
+                            logging.exception("get_instagram_photos: ERR-00013 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+                        except IndexError:
+                            logging.exception("get_instagram_photos: ERR-000114 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+                        except:
+                            logging.exception("get_instagram_photos: ERR-00015 Unexpected error: %s" % (exc_info()[0]))
+                            raise("get_instagram_user: ERR-00015 Unexpected error: %s" % (exc_info()[0]))    
+        
+                            
+                        recent_media.extend(media_feed)
+                        if len (recent_media) >= self.l_search_photos_amount:
+                            break
             
         
         if self.l_user_has_photos:    
@@ -415,7 +431,10 @@ class BestFollowers():
     '''
     l_instgram_user_id = None
     l_analyze_n_photos = None
-    l_instagram_api = None 
+    l_instagram_api = None
+    
+    l_analyzed_followers = 0
+    l_private_followers = 0     
                 
     def __init__(self, p_instgram_user_id, p_analyze_n_photos, p_instagram_api):
         '''Initialize class'''
@@ -436,13 +455,13 @@ class BestFollowers():
         
         l_best_photos = BestPhotos(p_instagram_follower_id, 1, 1, self.l_instagram_api)
         if l_best_photos:
-            l_recent_photos = l_best_photos.get_instagram_photos()
+            l_best_photos.get_instagram_photos()
             
-            if l_recent_photos:
-                l_photo = l_recent_photos[0] # get the last photo
+            if l_best_photos.l_latest_photos:
+                l_photo = l_best_photos.l_latest_photos[0] # get the last photo
                 l_time_delta = datetime.today() - l_photo.created_time
                 
-                if l_time_delta <= n:
+                if l_time_delta <= timedelta(days=n):
                     l_is_user_active = True
         
         return l_is_user_active
@@ -455,10 +474,17 @@ class BestFollowers():
         
         l_instagram_followers = [] 
         l_best_instagram_followers = [] 
+        l_user_private = False
+        self.l_analyzed_followers = 0
+        self.l_private_followers = 0
         
         try:
-            l_instagram_followers, x_next = self.l_instagram_api.user_followed_by(count=self.l_analyze_n_photos)
+            l_instagram_followers, x_next = self.l_instagram_api.api.user_followed_by(
+                                                 self.l_instgram_user_id
+                                                 )
         except InstagramAPIError as e:
+            if (e.status_code == 400):
+                l_user_private = True            
             logging.exception("get_best_instagram_followers: ERR-00050 Instagram API Error %s : %s" % (e.status_code, e.error_message))
         except InstagramClientError as e:
             logging.exception("get_best_instagram_followers: ERR-00051 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
@@ -468,48 +494,67 @@ class BestFollowers():
             logging.exception("get_best_instagram_followers: ERR-00053 Unexpected error: %s" % (exc_info()[0]))
             raise
         
-        if l_instagram_followers:
-            while x_next:
-                try:     
-                    l_next_followers, x_next = self.l_instagram_api.user_followed_by(with_next_url = x_next)
-                except InstagramAPIError as e:
-                    logging.exception("get_best_instagram_followers: ERR-00054 Instagram API Error %s : %s" % (e.status_code, e.error_message))
-                except InstagramClientError as e:
-                    logging.exception("get_best_instagram_followers: ERR-00055 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
-                except IndexError:
-                    logging.exception("get_best_instagram_followers: ERR-00056 Instagram search unsuccessful: %s" % (exc_info()[0]))                
-                except:
-                    logging.exception("get_best_instagram_followers: ERR-00057 Unexpected error: %s" % (exc_info()[0]))
-                    raise    
-
-                    
-                l_instagram_followers.extend(l_next_followers)
-                if len (l_instagram_followers) >= self.l_analyze_n_photos:
-                    break
+        if (len(l_instagram_followers) < self.l_analyze_n_photos) and (not l_user_private):
+            if l_instagram_followers:
+                while x_next:
+                    try:     
+                        l_next_followers, x_next = self.l_instagram_api.api.user_followed_by(with_next_url = x_next)
+                    except InstagramAPIError as e:
+                        logging.exception("get_best_instagram_followers: ERR-00054 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+                    except InstagramClientError as e:
+                        logging.exception("get_best_instagram_followers: ERR-00055 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+                    except IndexError:
+                        logging.exception("get_best_instagram_followers: ERR-00056 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+                    except:
+                        logging.exception("get_best_instagram_followers: ERR-00057 Unexpected error: %s" % (exc_info()[0]))
+                        raise    
+    
+                        
+                    l_instagram_followers.extend(l_next_followers)
+                    if len (l_instagram_followers) >= self.l_analyze_n_photos:
+                        break
    
             for follower in l_instagram_followers:
                 '''Filter only the best followers'''
                 l_exists = Friend.objects.filter(instagram_user_id=follower.id)
+                l_user_private = False
+                self.l_analyzed_followers += 1
                 
                 if l_exists.count() == 0:
-                    l_friends_media_count = follower.counts[u'media']
-                    l_friends_followings = follower.counts[u'follows']
-                    l_friends_followers = follower.counts[u'followed_by']
-                    if l_friends_followers != 0:
-                        l_friends_ff_ratio = l_friends_followings / l_friends_followers
-                    else:
-                        l_friends_ff_ratio = 0
+                    try:
+                        l_user_data = self.l_instagram_api.api.user(follower.id)
+                    except InstagramAPIError as e:
+                        logging.exception("get_best_instagram_followers: ERR-00058 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+                        if (e.status_code == 400):
+                            l_user_private = True
+                            self.l_private_followers += 1                        
+                    except InstagramClientError as e:
+                        logging.exception("get_best_instagram_followers: ERR-00059 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+                    except IndexError:
+                        logging.exception("get_best_instagram_followers: ERR-00060 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+                    except:
+                        logging.exception("get_best_instagram_followers: ERR-00061 Unexpected error: %s" % (exc_info()[0]))
+                        raise    
                     
-                    if (settings.FRIENDS_TR_MIN_MEDIA_COUNT <= l_friends_media_count <= settings.FRIENDS_TR_MAX_MEDIA_COUNT) and \
-                       (settings.FRIENDS_TR_MIN_FOLLOWINGS <= l_friends_followings <= settings.FRIENDS_TR_MAX_FOLLOWINGS) and \
-                       (settings.FRIENDS_TR_MIN_FOLLOWERS <= l_friends_followers <= settings.FRIENDS_TR_MAX_FOLLOWERS) and \
-                       (settings.FRIENDS_TR_MIN_FF_RATIO <= l_friends_ff_ratio <= settings.FRIENDS_TR_MAX_FF_RATIO):
-                            
-                        if self.is_user_active_in_last_n_days(follower.id, settings.FRIENDS_TR_LAST_POST_BEFORE_DAYS):
-                            '''User is active in last N days, passed all requirements
-                               Add it to friends
-                            '''
-                            
-                            l_best_instagram_followers.extend([follower])  
+                    if (not l_user_private):                      
+                        l_friends_media_count = l_user_data.counts[u'media']
+                        l_friends_followings = l_user_data.counts[u'follows']
+                        l_friends_followers = l_user_data.counts[u'followed_by']
+                        if l_friends_followers != 0:
+                            l_friends_ff_ratio = l_friends_followings / l_friends_followers
+                        else:
+                            l_friends_ff_ratio = 0
+                        
+                        if (settings.FRIENDS_TR_MIN_MEDIA_COUNT <= l_friends_media_count <= settings.FRIENDS_TR_MAX_MEDIA_COUNT) and \
+                           (settings.FRIENDS_TR_MIN_FOLLOWINGS <= l_friends_followings <= settings.FRIENDS_TR_MAX_FOLLOWINGS) and \
+                           (settings.FRIENDS_TR_MIN_FOLLOWERS <= l_friends_followers <= settings.FRIENDS_TR_MAX_FOLLOWERS) and \
+                           (settings.FRIENDS_TR_MIN_FF_RATIO <= l_friends_ff_ratio <= settings.FRIENDS_TR_MAX_FF_RATIO):
+                                
+                            if self.is_user_active_in_last_n_days(follower.id, settings.FRIENDS_TR_LAST_POST_BEFORE_DAYS):
+                                '''User is active in last N days, passed all requirements
+                                   Add it to friends
+                                '''
+                                
+                                l_best_instagram_followers.extend([l_user_data])  
                                           
         return l_best_instagram_followers

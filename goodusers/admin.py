@@ -26,18 +26,23 @@ class GoodUserAdmin(admin.ModelAdmin):
     #l_find_top_n_photos = 10
     l_find_top_n_photos = settings.GOODUSERS_FIND_TOP_N_PHOTOS
     l_search_last_photos = settings.GOODUSERS_SEARCH_N_PHOTOS
-                                      
+       
+    l_analyzed_followers = 0
+    l_found_friends = 0
+    l_analyzed_goodusers = 0
+    l_private_followers = 0                                      
                                       
     def analyze_gooduser_find_friends(self, request, queryset):
         '''Action -> Analyze GoodUsers followers and find potential
            Friends.
         '''
         
-        l_analyzed_followers = 0
-        l_found_friends = 0
-        l_analyzed_goodusers = 0
+        self.l_analyzed_followers = 0
+        self.l_found_friends = 0
+        self.l_analyzed_goodusers = 0
+        self.l_private_followers = 0  
         
-        queryset = queryset.filter(to_be_processed=True)
+        queryset = queryset.filter(to_be_processed_for_friends=True)
         
         ig_session = InstagramSession(p_is_admin=True, p_token='')
         ig_session.init_instagram_API()
@@ -74,12 +79,13 @@ class GoodUserAdmin(admin.ModelAdmin):
                             
                         l_instagram_friends = \
                             l_best_instagram_followers.get_best_instagram_followers()
-                        l_analyzed_goodusers += 1
+                        self.l_analyzed_goodusers += 1
+                        self.l_analyzed_followers += l_best_instagram_followers.l_analyzed_followers
+                        self.l_private_followers += l_best_instagram_followers.l_private_followers
                         
                         if l_instagram_friends:
                             '''Found followers - save them to our database'''
                             for follower in l_instagram_friends:
-                                l_analyzed_followers += 1
                                 l_exists = Friend.objects.filter(instagram_user_id=follower.id)
                                 
                                 if l_exists.count() == 0:
@@ -87,7 +93,7 @@ class GoodUserAdmin(admin.ModelAdmin):
                                     l_new_friend = \
                                         Friend(instagram_user_id=follower.id,
                                                instagram_user_name=follower.username, instagram_user_name_valid=True,
-                                               gooduser=obj, instagram_user_full_name=follower.full_name,
+                                               instagram_user_full_name=follower.full_name,
                                                instagram_profile_picture_URL=follower.profile_picture,
                                                instagram_user_bio=follower.bio,
                                                instagram_user_website_URL=follower.website,
@@ -98,8 +104,10 @@ class GoodUserAdmin(admin.ModelAdmin):
                                                instagram_user_profile_page_URL=self.generate_instagram_profile_page_URL(follower.username),
                                                iconosquare_user_profile_page_URL=self.generate_iconosquare_profile_page_URL(follower.id)
                                                )
-                                    l_new_friend.save()
-                                    l_found_friends += 1
+                                    l_new_friend.save()                                        
+                                    l_new_friend.gooduser.add(obj)
+
+                                    self.l_found_friends += 1
                                 else:
                                     '''Friend exists - add new gooduser'''
                                     l_exists.gooduser.add(obj)
@@ -108,9 +116,17 @@ class GoodUserAdmin(admin.ModelAdmin):
             
                 obj.save()    
         #FRIENDS_TR_ANALYZE_N_FRIENDS
-        
-        buf = 'Analyzed %s Goodusers. Analyzed %s folowers. Found %s Friends' \
-               % (l_analyzed_goodusers, l_analyzed_followers, l_found_friends)
+        self.l_instagram_api_limit_end, self.l_instagram_api_limit = \
+             ig_session.get_api_limits()
+             
+        buf = 'Analyzed %s Goodusers. Analyzed %s folowers. Found %s private followers.' \
+               'Found %s Friends. Instagram API (%s - %s/%s / diff: %s)' \
+               % (self.l_analyzed_goodusers, self.l_analyzed_followers,
+                  self.l_private_followers, self.l_found_friends,
+                  self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
+                  self.l_instagram_api_limit, 
+                  (int(self.l_instagram_api_limit_start) - int(self.l_instagram_api_limit_end))
+                  )
         self.message_user(request, buf)
     analyze_gooduser_find_friends.short_description = 'Find new friends from GoodUser'         
                                                                                 
