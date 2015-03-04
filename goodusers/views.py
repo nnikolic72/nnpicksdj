@@ -24,14 +24,14 @@ class IndexView(generic.ListView):
     context_object_name = 'goodusers_list'
     
     def get_queryset(self):
-        return GoodUser.objects.order_by('user_name')
+        return GoodUser.objects.order_by('instagram_user_name')
 
 
 class GoodUsersListView(TemplateView):
     '''Complex version of IndexView'''
     
     template_name = 'goodusers/index.html'
-    goodusers_list = GoodUser.objects.order_by('user_name')
+    goodusers_list = GoodUser.objects.order_by('instagram_user_name')
     categories_list = Category.objects.filter(parent__isnull=True).order_by('title')
     
     def get(self, request, *args, **kwargs):
@@ -59,10 +59,10 @@ class UsersInCategory(TemplateView):
             
         x = l_categories.title
         goodusers_list = \
-            GoodUser.objects.filter(user_category__slug=l_categories.slug).order_by('user_name')
+            GoodUser.objects.filter(user_category__slug=l_categories.slug).order_by('instagram_user_name')
         goodusers_list_child = \
             GoodUser.objects.filter(user_category__parent__slug=l_categories.slug).\
-                distinct().order_by('user_name')
+                distinct().order_by('instagram_user_name')
         
         child_categories = Category.objects.filter(parent__slug=l_categories.slug)
         

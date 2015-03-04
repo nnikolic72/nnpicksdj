@@ -19,6 +19,7 @@ class FriendsListView(TemplateView):
         l_friend_photos = Photo.objects.filter(friend_id=friend.id).order_by('-photo_rating')
         photos_dict[friend.id] = l_friend_photos
     
+    
     def get(self, request, *args, **kwargs):
         '''Serve GET request'''
         

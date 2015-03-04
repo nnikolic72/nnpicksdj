@@ -40,6 +40,8 @@ INSTAGRAM_API_KEY = config.get('instagram', 'SECRET_KEY')
 SECRET_KEY =  config.get('nnpicksdj', 'SECRET_KEY')
 
 DEBUG = True
+TEST_APP = True
+TEST_APP_FRIENDS_TR_ANALYZE_N_FRIENDS = 50
 
 TEMPLATE_DEBUG = DEBUG
 

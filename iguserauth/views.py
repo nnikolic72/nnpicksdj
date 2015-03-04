@@ -4,17 +4,22 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.api import get_messages
 from django.contrib.auth import logout as auth_logout
+#from django.contrib.auth.models import User
 #from django.contrib.auth import logout as auth_logout
 
 # Create your views here.
 from social_auth import __version__ as version  # @UnresolvedImport
 
-
+#from members.models import Member
 
 
 def home(request):
     """Home view, displays login mechanism"""
     
+    #l_user_id = User.objects.get(id=request.session._session['_auth_user_id'])
+    #l_new_member = Member(user_id__id=l_user_id)
+    
+    '''Add a member'''
     if request.user.is_authenticated():
         return HttpResponseRedirect('done')
     else:

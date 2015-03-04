@@ -7,6 +7,7 @@ from friends.models import Friend
 
 from categories.models import Category
 from attributes.models import Attribute
+from members.models import Member
 # Create your models here.
 
 class Photo(models.Model):
@@ -46,6 +47,7 @@ class Photo(models.Model):
                
     good_user_id = models.ForeignKey(GoodUser, null=True, blank=True)
     friend_id = models.ForeignKey(Friend, null=True, blank=True)
+    member_id = models.ForeignKey(Member, null=True, blank=True)
     photo_category = models.ManyToManyField(Category, null=True, blank=True)
     photo_attribute = models.ManyToManyField(Attribute, null=True, blank=True)    
     

@@ -5,6 +5,11 @@
 <script src="{{STATIC_URL}}js/emailsubmit.js"></script>
 {% endblock javascript %}
 
+{% block stylesheets %}
+{{ block.super }}
+    <link rel="stylesheet" href="{{STATIC_URL}}css/members.css">
+{% endblock stylesheets %}
+
 {% block pagetitle %}- Welcome @{{ user.username }}
 {% endblock %}
 
@@ -29,10 +34,13 @@
         </section>
         
         <section>
-        <p>Configure your preferences</p>        
-        <p>Browse your squaresensor feed</p>
-        <a href='{% url 'goodusers:index' %}'><p>Find talented Instagram photographers</p></a>
-        <a href='{% url 'friends:index' %}'><p>Find new Instagram friends (requires configuring preferences)</p></a>
+        <div id='#membermenu'>
+        <a href='{% url 'members:mybest' %}'  class='btn'>View my best photos</a>        
+        <a href='#'  class='btn'>Configure my preferences</a>        
+        <a href='#'  class='btn'>Browse my squaresensor feed</a>
+        <a href='{% url 'goodusers:index' %}' class='btn'>Find talented Instagram photographers</a>
+        <a href='{% url 'friends:index' %}'   class='btn'>Find my new Instagram friends</a>
+        </div>
         </section>        
     </article>
 
