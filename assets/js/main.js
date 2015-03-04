@@ -53,7 +53,7 @@ function like_callback(data){
     }
     return true;
 }
-
+ 
 function like(p_photo_id, static_url) {
     idname = '#likesdiv';
     idname = idname.concat(p_photo_id);

@@ -17,6 +17,9 @@ git push heroku master
 // Heroku migrate django models
 heroku run python manage.py migrate
 
+// collect static files
+heroku run python manage.py collectstatic
+
 // Heroku status - you have to be in deployment directory
 cd nnpicksdj
 heroku ps

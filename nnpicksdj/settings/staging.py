@@ -3,7 +3,7 @@ Created on Feb 28, 2015
 
 @author: tanja
 '''
-
+import os
 import dj_database_url  # @UnresolvedImport
 from memcacheify import memcacheify  # @UnresolvedImport
 CACHES = memcacheify()
@@ -31,6 +31,14 @@ settings_path = PROJECT_DIR.child('nnpicksdj').child("settings")
 settings_path = Path(settings_path, 'settings.ini')
 config.read(settings_path)
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = 'staticfiles'
+STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, '../../static'),
+)
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 

@@ -20,7 +20,7 @@ function like_callback(data){
     idname = '#likesdiv';
     idname = idname.concat(data.photo_id);
     
-    imgname = '#imglike_';
+    imgname = 'imglike_';
     imgname = imgname.concat(data.photo_id);
     
     liketxt = '#iglikestxt_';
@@ -53,19 +53,25 @@ function like_callback(data){
     }
     return true;
 }
-
-function like(p_photo_id) {
-    idname = '#imglike_';
+ 
+function like(p_photo_id, static_url) {
+    idname = '#likesdiv';
     idname = idname.concat(p_photo_id);
+    
+    imgname = 'imglike_';
+    imgname = imgname.concat(p_photo_id);
+    
+    //alert(static_url);
     //ajax_loader-small
     html_text = '<img class="heartimage"';
     html_text = html_text.concat(' id="');
     html_text = html_text.concat(imgname);
     html_text = html_text.concat('" src="');
-    html_text = html_text.concat(data.static_url);
+    html_text = html_text.concat(static_url);
     html_text = html_text.concat('img/ajax_loader-small.gif"></img>');
     $(idname).html(html_text);
-        
+    //$(idname).html("a");
+    //alert("idname: " + idname + ", htmltext: " + html_text)  ;  
 
     Dajaxice.goodusers.like(like_callback, {'p_photo_id':p_photo_id});
 }
