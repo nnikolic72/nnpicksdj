@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
-
 from photos.models import Photo
 from .forms import EmailForm
 from .models import Member
@@ -44,9 +43,15 @@ class MyBestPhotosView(TemplateView):
     
     def get(self, request, *args, **kwargs):
         '''Serve GET request'''
-        
-        l_member = Member.objects.get(user_id__id=request.user.id)
-        best_photos = Photo.objects.filter(member_id=l_member).order_by('-photo_rating')
+        l_member = None
+        best_photos = None
+        try:
+            l_member = Member.objects.get(user_id__id=request.user.id)
+            best_photos = Photo.objects.filter(member_id=l_member).order_by('-photo_rating')
+        except Member.DoesNotExist:
+            pass
+        except:
+            raise
             
         return render(request, self.template_name, 
                       {

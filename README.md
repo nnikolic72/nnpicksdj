@@ -14,6 +14,9 @@ git add -A
 git commit -am "versionx"
 git push heroku master
 
+// Heroku migrate django models
+heroku run python manage.py migrate
+
 // Heroku status - you have to be in deployment directory
 cd nnpicksdj
 heroku ps
