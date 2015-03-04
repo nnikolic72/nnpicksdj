@@ -5,38 +5,34 @@ from django.contrib.auth.models import User
 from goodusers.models import GoodUser
 from friends.models import Friend
 
-from categories.models import Category
-from attributes.models import Attribute
+#from categories.models import Category
+#from attributes.models import Attribute
 # Create your models here.
 
-class Member(models.Model):
+from goodusers.models import InstagramUser
+
+class Member(InstagramUser):
     '''Logged user preferences'''
     
+    user_type = models.CharField(editable=False, default='member', max_length=50)
+        
     #Link to User Django model
     user_id = models.OneToOneField(User, null=False, blank=False)
-    
-    # Which photo categories user belongs to
-    photo_categories = models.ManyToManyField(Category, null=True, blank=True)
-    photo_attributes = models.ManyToManyField(Attribute, null=True, blank=True)
-    
-    # Which Goodusers this Member follows
+
+    # Which Goodusers this Member follows on squaresensor
     goodusers_followings = models.ManyToManyField(GoodUser, null=True, blank=True, through='MemberToGooduser') 
     
+    # Which potential Friends this member interacted with or followed on squaresensor
     potential_friends = models.ManyToManyField(Friend, null=True, blank=True, through='MemberToFriend') 
-
     
     likes_in_last_hour = models.IntegerField(null=True, blank=True, default=0)
     comments_in_last_hour = models.IntegerField(null=True, blank=True, default=0)
         
-    '''Time-stamp when was the last time User was updated using Instagram API'''
-    last_processed_date = models.DateTimeField('Dashboard user processed date', null=True, blank=True)
-        
-    last_update_date = models.DateTimeField('GoodUser creation date', auto_now=True)
-    creation_date = models.DateTimeField('GoodUser creation date', auto_now_add=True)
+    paid_member = models.BooleanField(null=False, blank=False, default=False)
+    membership_expiry_date = models.DateTimeField(null=True, blank=True)
     
-    class Meta:
-        get_latest_by = 'creation_date'
-        ordering = ('user_id__user_name',)
+    class Meta(InstagramUser.Meta):
+        ordering = ('user_id__username',)
         verbose_name = 'Member'
         verbose_name_plural = 'Members'       
     

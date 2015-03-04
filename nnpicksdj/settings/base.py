@@ -179,7 +179,7 @@ STATICFILES_FINDERS = (
 STATIC_URL = '/static/'
 
 
-
+TEST_APP = False
 # DAJAX
 #DAJAXICE_MEDIA_PREFIX = "dajaxice"
 DAJAXICE_DEBUG = True
@@ -192,6 +192,11 @@ GOODUSERS_SEARCH_N_PHOTOS = 500 # how many last photos to search while finding t
 # APP settings: friends
 FRIENDS_FIND_TOP_N_PHOTOS = 5 # how may best photos to find
 FRIENDS_SEARCH_N_PHOTOS = 100 # how many last photos to search while finding the best ones
+
+# APP settings: members
+MEMBERS_FIND_TOP_N_PHOTOS = 20 # how may best photos to find
+MEMBERS_SEARCH_N_PHOTOS = 1000 # how many last photos to search while finding the best ones
+
 # Friends inclusion thresholds
 FRIENDS_TR_ANALYZE_N_FRIENDS = 1000
 FRIENDS_TR_LAST_POST_BEFORE_DAYS = 2

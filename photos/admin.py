@@ -85,7 +85,7 @@ class PhotoAdmin(admin.ModelAdmin):
     list_display = ('instagram_photo_id', 'good_user_id', 'friend_id', 
                     'photo_rating', 'admin_thumbnail', 'instagram_photo_processed', )
     
-    list_filter = ('instagram_photo_processed', 'good_user_id', 'friend_id' )
+    list_filter = ('instagram_photo_processed', 'good_user_id', 'friend_id', 'member_id', )
     
     ordering = ('good_user_id', '-photo_rating', )
     
