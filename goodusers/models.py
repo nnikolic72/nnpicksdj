@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 
 from categories.models import Category
 from attributes.models import Attribute
-from pip.cmdoptions import editable
+#from pip.cmdoptions import editable
 
 class InstagramUser(models.Model):
     '''Abstract base class for GoodUsers, Members, Friends and Followings'''

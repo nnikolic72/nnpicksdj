@@ -16,7 +16,7 @@ class FriendsListView(TemplateView):
     photos_dict = {}
     
     for friend in friends_list:
-        l_friend_photos = Photo.objects.filter(friend_id=friend.id).order_by('-photo_rating')
+        l_friend_photos = Photo.objects.filter(friend_id=friend).order_by('-photo_rating')
         photos_dict[friend.id] = l_friend_photos
     
     
