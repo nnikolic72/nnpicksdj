@@ -39,6 +39,75 @@ class MemberAdmin(admin.ModelAdmin):
         self.message_user(request, message)                
     set_members_process_false.short_description = 'Set "To Be Processed for basic info" to "No"'  
     
+    
+    
+    
+    def set_members_process_photos_true(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to True.
+           Process only GoodUsers that have flag to_be_processed set to False.
+           to_be_processed==False
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_photos_true(request, queryset)
+        self.message_user(request, message)
+    set_members_process_photos_true.short_description = 'Set "To Be Processed for photos" to "Yes"' 
+
+
+    def set_members_process_photos_false(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to False.
+           Process only GoodUsers that have flag to_be_processed set to True.
+           to_be_processed==True
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_photos_false(request, queryset)
+        self.message_user(request, message)                
+    set_members_process_photos_false.short_description = 'Set "To Be Processed for photos" to "No"' 
+    
+           
+           
+    def set_members_process_friends_true(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to True.
+           Process only GoodUsers that have flag to_be_processed set to False.
+           to_be_processed==False
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_friends_true(request, queryset)
+        self.message_user(request, message)
+    set_members_process_friends_true.short_description = 'Set "To Be Processed for Friends" to "Yes"' 
+
+
+    def set_members_process_friends_false(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to False.
+           Process only GoodUsers that have flag to_be_processed set to True.
+           to_be_processed==True
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_friends_false(request, queryset)
+        self.message_user(request, message)                
+    set_members_process_friends_false.short_description = 'Set "To Be Processed for Friends" to "No"'            
+           
+           
+
+    def set_members_process_followings_true(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to True.
+           Process only GoodUsers that have flag to_be_processed set to False.
+           to_be_processed==False
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_friends_true(request, queryset)
+        self.message_user(request, message)
+    set_members_process_followings_true.short_description = 'Set "To Be Processed for Friends" to "Yes"' 
+
+
+    def set_members_process_followings_false(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to False.
+           Process only GoodUsers that have flag to_be_processed set to True.
+           to_be_processed==True
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_friends_false(request, queryset)
+        self.message_user(request, message)                
+    set_members_process_followings_false.short_description = 'Set "To Be Processed for Friends" to "No"'     
       
 
     '''Determine what is displayed when GoodUser is displayed as a list'''
@@ -83,7 +152,14 @@ class MemberAdmin(admin.ModelAdmin):
  
     '''Define a list of actions listed in Admin interface Action combo box'''
     actions = (process_member, set_members_process_true, 
-               set_members_process_false)
+               set_members_process_false,
+               set_members_process_photos_false,
+               set_members_process_photos_true,
+               set_members_process_friends_false,
+               set_members_process_friends_true,
+               set_members_process_followings_false,
+               set_members_process_followings_true,               
+               )
     
     filter_horizontal = ('user_category', 'user_attribute', )
     

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import ugettext as _  # @UnusedImport
 from django.utils import timezone
+from django.conf import settings
 
 from .models import Photo
 #from goodusers.models import GoodUser
@@ -59,11 +60,13 @@ class PhotoAdmin(admin.ModelAdmin):
         l_counter = 0
         
         for obj in queryset:
-            obj = self.get_instagram_photo_info(ig_session, obj)
-            obj.instagram_photo_processed = True
-            obj.last_processed_date = timezone.datetime.now()
-            obj.save()
-            l_counter += 1
+            l_instagram_api_limit_current, foo = ig_session.get_api_limits()  # @UnusedVariable
+            if l_instagram_api_limit_current >= settings.INSTAGRAM_API_THRESHOLD:
+                obj = self.get_instagram_photo_info(ig_session, obj)
+                obj.instagram_photo_processed = True
+                obj.last_processed_date = timezone.datetime.now()
+                obj.save()
+                l_counter += 1
             
             
         self.l_instagram_api_limit_end, self.l_instagram_api_limit = \
@@ -83,14 +86,24 @@ class PhotoAdmin(admin.ModelAdmin):
     process_photos_by_instagram_api.short_description = 'Process photos by Instagram API'        
             
     list_display = ('instagram_photo_id', 'good_user_id', 'friend_id', 
-                    'photo_rating', 'admin_thumbnail', 'instagram_photo_processed', )
+                    'following_id', 'member_id',
+                    'photo_rating', 'admin_thumbnail', 
+                    'instagram_photo_processed', 
+                    )
     
-    list_filter = ('instagram_photo_processed', 'good_user_id', 'friend_id', 'member_id', )
+    list_filter = ('instagram_photo_processed',
+                    
+                   'good_user_id', 
+                   'friend_id', 
+                   'member_id',
+                   'following_id', 
+                   )
     
     ordering = ('good_user_id', '-photo_rating', )
     
     '''Search by foreign key example!'''
-    search_fields = ('good_user_id__instagram_user_name', )
+    search_fields = ('good_user_id__instagram_user_name',
+                      )
     
     filter_horizontal = ('photo_category', 'photo_attribute', )
     readonly_fields = ('admin_thumbnail',)

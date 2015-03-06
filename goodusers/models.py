@@ -76,7 +76,7 @@ class InstagramUser(models.Model):
                                              null=True, blank=True
                                              )   
     '''GoodUser is marked for processing next time GoodUser Batch Processing is run'''
-    to_be_processed_for_basic_info = models.BooleanField(verbose_name='TBP Basic Info', default=True, null=False,
+    to_be_processed_for_basic_info = models.BooleanField(verbose_name='TBP Basic Info', default=False, null=False,
                                           help_text=_('Check if you want this Instagram user to be ' 
                                                      'processed in the next Batch Run'
                                                      )
@@ -114,7 +114,7 @@ class InstagramUser(models.Model):
                                         )    
     '''GoodUser is marked for processing for Followings next time Instagram user Batch Processing is run'''
     to_be_processed_for_followings = models.BooleanField(verbose_name='TBP Followings', 
-                                                         default=True, null=False,
+                                                         default=False, null=False,
                                           help_text=_('Check if you want this Instagram user to be ' 
                                                      'processed for Followings in the next Batch Run'
                                                      )
@@ -131,7 +131,7 @@ class InstagramUser(models.Model):
                                         )    
     '''GoodUser is marked for processing for Photos next time Instagram user Batch Processing is run'''
     to_be_processed_for_photos = models.BooleanField(verbose_name='TBP Photos', 
-                                                     default=True, null=False,
+                                                     default=False, null=False,
                                           help_text=_('Check if you want this Instagram user to be ' 
                                                      'processed for Photos in the next Batch Run'
                                                      )

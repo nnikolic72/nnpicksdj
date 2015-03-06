@@ -37,6 +37,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     'django.core.context_processors.media',
     'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.request',
 )
 
 TEMPLATE_LOADERS = (
@@ -56,11 +57,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'endless_pagination',    
     'social_auth',
     'csvimport',  # use AppConfig for django >=1.7 csvimport >=2.2
     'dajaxice',
     'goodusers',
-    'friends',    
+    'friends',
+    'followings',  
     'photos',
     'iguserauth',
     'categories',
@@ -179,10 +182,19 @@ TEST_APP = False
 #DAJAXICE_MEDIA_PREFIX = "dajaxice"
 DAJAXICE_DEBUG = True
 
+TEST_APP = False
+#Used for testing
+TEST_APP_FRIENDS_TR_ANALYZE_N_FRIENDS = 50
+TEST_APP_FRIENDS_TR_ANALYZE_N_FOLLOWINGS = 300
 
 # APP settings: goodusers
 GOODUSERS_FIND_TOP_N_PHOTOS = 10 # how may best photos to find
 GOODUSERS_SEARCH_N_PHOTOS = 500 # how many last photos to search while finding the best ones
+
+# APP settings: followings
+FOLLOWINGS_FIND_TOP_N_PHOTOS = 10 # how may best photos to find
+FOLLOWINGS_SEARCH_N_PHOTOS = 500 # how many last photos to search while finding the best ones
+
 
 # APP settings: friends
 FRIENDS_FIND_TOP_N_PHOTOS = 5 # how may best photos to find
@@ -203,6 +215,18 @@ FRIENDS_TR_MIN_FOLLOWERS = 200
 FRIENDS_TR_MAX_FOLLOWERS = 800
 FRIENDS_TR_MIN_FF_RATIO = 0.85
 FRIENDS_TR_MAX_FF_RATIO = 4
+
+# Followings inclusion thresholds
+FOLLOWINGS_TR_ANALYZE_N_FOLLOWINGS = 1000
+FOLLOWINGS_TR_LAST_POST_BEFORE_DAYS = 30
+FOLLOWINGS_TR_MIN_MEDIA_COUNT = 50
+FOLLOWINGS_TR_MAX_MEDIA_COUNT = float("inf")
+FOLLOWINGS_TR_MIN_FOLLOWINGS = float("-inf")
+FOLLOWINGS_TR_MAX_FOLLOWINGS = float("+inf")
+FOLLOWINGS_TR_MIN_FOLLOWERS = 100
+FOLLOWINGS_TR_MAX_FOLLOWERS = float("+inf")
+FOLLOWINGS_TR_MIN_FF_RATIO = float("-inf")
+FOLLOWINGS_TR_MAX_FF_RATIO = 1.5
 
 #General threshold - when to stop processing Instagram requests
 INSTAGRAM_API_THRESHOLD = 500

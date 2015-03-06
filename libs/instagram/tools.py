@@ -16,9 +16,11 @@ from instagram import InstagramAPI
 from instagram.bind import InstagramAPIError, InstagramClientError
 
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 from nnpicksdj.settings.local import INSTAGRAM_API_KEY
 from friends.models import Friend
+from followings.models import Following
 #from goodusers.models import GoodUser
 
 
@@ -473,7 +475,8 @@ class BestFollowers():
         '''Analyze followers and find the best ones'''
         
         l_instagram_followers = [] 
-        l_best_instagram_followers = [] 
+        l_best_instagram_followers = []
+        l_existing_instagram_friends = [] 
         l_user_private = False
         self.l_analyzed_followers = 0
         self.l_private_followers = 0
@@ -560,6 +563,178 @@ class BestFollowers():
             else:
                 '''Friend already in database'''
                 self.l_already_friends += 1
+                l_existing_instagram_friends.extend([follower.id])
                 pass
                                           
-        return l_best_instagram_followers
+        return l_best_instagram_followers, l_existing_instagram_friends
+    
+    
+    
+
+
+
+class BestFollowings():
+    '''Class for finding the best Instagram followers - Friends
+    
+        Configuration for searching new friends:
+        FOLLOWINGS_TR_ANALYZE_N_FOLLOWINGS
+        FOLLOWINGS_TR_LAST_POST_BEFORE_DAYS
+        FOLLOWINGS_TR_MIN_MEDIA_COUNT
+        FOLLOWINGS_TR_MAX_MEDIA_COUNT
+        FOLLOWINGS_TR_MIN_FOLLOWINGS
+        FOLLOWINGS_TR_MAX_FOLLOWINGS
+        FOLLOWINGS_TR_MIN_FOLLOWERS
+        FOLLOWINGS_TR_MAX_FOLLOWERS
+        FOLLOWINGS_TR_MIN_FF_RATIO
+        FOLLOWINGS_TR_MAX_FF_RATIO
+    '''
+    l_instgram_user_id = None
+    l_analyze_n_photos = None
+    l_instagram_api = None
+    l_user_type = None
+    
+    l_analyzed_followings = 0
+    l_private_followings = 0     
+                
+    def __init__(self, p_instgram_user_id, p_user_type, p_analyze_n_photos, p_instagram_api):
+        '''Initialize class'''
+        
+        self.l_instgram_user_id = p_instgram_user_id
+        self.l_analyze_n_photos = p_analyze_n_photos
+        self.l_instagram_api = p_instagram_api  
+        self.l_user_type = p_user_type    
+     
+    def is_user_active_in_last_n_days(self, p_instagram_following_id, n):
+        '''Returnts activity of user
+        Parameters:
+        n - number of days in the pas when user had to post on Instagram
+        
+        Returns
+        Boolean - True if user was active in last n days
+        '''
+        l_is_user_active = False
+        
+        l_best_photos = BestPhotos(p_instagram_following_id, 1, 1, self.l_instagram_api)
+        if l_best_photos:
+            l_best_photos.get_instagram_photos()
+            
+            if l_best_photos.l_latest_photos:
+                l_photo = l_best_photos.l_latest_photos[0] # get the last photo
+                l_time_delta = datetime.today() - l_photo.created_time
+                
+                if l_time_delta <= timedelta(days=n):
+                    l_is_user_active = True
+        
+        return l_is_user_active
+                    
+        
+         
+           
+    def get_best_instagram_followings(self):
+        '''Analyze followers and find the best ones'''
+        
+        l_instagram_followings = [] 
+        l_best_instagram_followings = [] 
+        l_existing_instagram_followings = [] 
+        l_user_private = False
+        self.l_analyzed_followings = 0
+        self.l_private_followings = 0
+        self.l_already_followings = 0
+        
+        try:
+            l_instagram_followings, x_next = self.l_instagram_api.api.user_follows(
+                                                 self.l_instgram_user_id
+                                                 )
+        except InstagramAPIError as e:
+            if (e.status_code == 400):
+                l_user_private = True            
+            logging.exception("get_best_instagram_followings: ERR-00060 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+        except InstagramClientError as e:
+            logging.exception("get_best_instagram_followings: ERR-00061 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+        except IndexError:
+            logging.exception("get_best_instagram_followings: ERR-00062 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+        except:
+            logging.exception("get_best_instagram_followings: ERR-00063 Unexpected error: %s" % (exc_info()[0]))
+            raise
+        
+        if (len(l_instagram_followings) < self.l_analyze_n_photos) and (not l_user_private):
+            if l_instagram_followings:
+                while x_next:
+                    try:     
+                        l_next_followings, x_next = self.l_instagram_api.api.user_follows(with_next_url = x_next)
+                    except InstagramAPIError as e:
+                        logging.exception("get_best_instagram_followings: ERR-00064 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+                    except InstagramClientError as e:
+                        logging.exception("get_best_instagram_followings: ERR-00065 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+                    except IndexError:
+                        logging.exception("get_best_instagram_followings: ERR-00066 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+                    except:
+                        logging.exception("get_best_instagram_followings: ERR-00067 Unexpected error: %s" % (exc_info()[0]))
+                        raise    
+    
+                        
+                    l_instagram_followings.extend(l_next_followings)
+                    if len (l_instagram_followings) >= self.l_analyze_n_photos:
+                        break
+   
+        for following in l_instagram_followings:
+            '''Filter only the best followers'''
+            l_exists = Following.objects.filter(instagram_user_id=following.id)
+            l_user_private = False
+            self.l_analyzed_followings += 1
+            
+            if l_exists.count() == 0:
+                try:
+                    l_user_data = self.l_instagram_api.api.user(following.id)
+                except InstagramAPIError as e:
+                    logging.exception("get_best_instagram_followings: ERR-00068 Instagram API Error %s : %s" % (e.status_code, e.error_message))
+                    if (e.status_code == 400):
+                        l_user_private = True
+                        self.l_private_followings += 1                        
+                except InstagramClientError as e:
+                    logging.exception("get_best_instagram_followings: ERR-00069 Instagram Client Error %s : %s" % (e.status_code, e.error_message))
+                except IndexError:
+                    logging.exception("get_best_instagram_followings: ERR-00070 Instagram search unsuccessful: %s" % (exc_info()[0]))                
+                except:
+                    logging.exception("get_best_instagram_followings: ERR-00071 Unexpected error: %s" % (exc_info()[0]))
+                    raise    
+                
+                if (not l_user_private):                      
+                    l_followings_media_count = l_user_data.counts[u'media']
+                    l_followings_followings = l_user_data.counts[u'follows']
+                    l_followings_followers = l_user_data.counts[u'followed_by']
+                    if l_followings_followers != 0:
+                        l_friends_ff_ratio = l_followings_followings / l_followings_followers
+                    else:
+                        l_friends_ff_ratio = 0
+                    
+                    if (settings.FOLLOWINGS_TR_MIN_MEDIA_COUNT <= l_followings_media_count <= settings.FOLLOWINGS_TR_MAX_MEDIA_COUNT) and \
+                       (settings.FOLLOWINGS_TR_MIN_FOLLOWINGS <= l_followings_followings <= settings.FOLLOWINGS_TR_MAX_FOLLOWINGS) and \
+                       (settings.FOLLOWINGS_TR_MIN_FOLLOWERS <= l_followings_followers <= settings.FOLLOWINGS_TR_MAX_FOLLOWERS) and \
+                       (settings.FOLLOWINGS_TR_MIN_FF_RATIO <= l_friends_ff_ratio <= settings.FOLLOWINGS_TR_MAX_FF_RATIO):
+                            
+                        if self.is_user_active_in_last_n_days(following.id, settings.FOLLOWINGS_TR_LAST_POST_BEFORE_DAYS):
+                            '''User is active in last N days, passed all requirements
+                               Add it to friends
+                            '''
+                            
+                            l_best_instagram_followings.extend([l_user_data])  
+            else:
+                '''Following already in database'''
+                self.l_already_followings += 1
+                l_existing_instagram_followings.extend([following.id])
+                '''Add new source'''
+                #l_existing_following = get_object_or_404(Following(instagram_user_id=following.id))
+                
+                #if self.l_user_type == 'gooduser':
+                #    l_gooduser = get_object_or_404(GoodUser(instagram_user_id=self.l_instgram_user_id))
+                #    l_existing_following.gooduser.add(l_gooduser)
+                # 
+                #if self.l_user_type == 'member':
+                #    l_member = get_object_or_404(Member(instagram_user_id=self.l_instgram_user_id))
+                #    l_existing_following.member.add(l_member)
+                                  
+                    
+                #pass
+                                          
+        return l_best_instagram_followings, l_existing_instagram_followings    

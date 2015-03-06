@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block stylesheets %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{{STATIC_URL}}css/friends-table.css">
+    <link rel="stylesheet" href="{{STATIC_URL}}css/friends.css">
+{% endblock %}
+
+
+
+{% block pagetitle %} - Search for Instagram Followings{% endblock %}
+
+{% block content %}
+    <article>
+        <section>
+        
+			<h2>List Instagram followings</h2>
+			{% if followings_list %}
+			<div class="introduction" id='introduction_text'>
+			<p>This is a list of Instagram followings and their best photos.</p>
+			<p>You will be allowed to interact with one photo per user.</p>
+			</div>
+
+
+            {% include page_template %}			        
+
+			{% else %}
+			<p>No potential Instagram followings available in our database.</p>
+			
+			{% endif %}
+        
+        </section>
+    </article>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{{STATIC_URL}}js/friends.js"></script>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>    
+    <script src="{{ STATIC_URL }}endless_pagination/js/endless-pagination.js"></script>
+    <script>
+       $.endlessPaginate({
+            paginateOnScroll: true,
+            paginateOnScrollMargin: 20,
+            paginateOnScrollChunkSize: 5
+        });
+    </script>    
+{% endblock %}

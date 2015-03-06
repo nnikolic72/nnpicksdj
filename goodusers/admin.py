@@ -3,17 +3,18 @@ from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import ugettext as _  # @UnusedImport
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 from .models import (
                      GoodUser, GoodUserRaw
                      )
 from photos.models import Photo
 from friends.models import Friend
-
+from followings.models import Following
 
 from libs.instagram.tools import (
                                   InstagramSession, BestPhotos,
-                                  BestFollowers
+                                  BestFollowers, BestFollowings 
                                   )
 
    
@@ -55,10 +56,81 @@ class GoodUserAdmin(admin.ModelAdmin):
     set_goodusers_process_false.short_description = 'Set "To Be Processed for basic info" to "No"'  
     
       
+      
+      
+    def set_goodusers_process_photos_true(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to True.
+           Process only GoodUsers that have flag to_be_processed set to False.
+           to_be_processed==False
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_photos_true(request, queryset)
+        self.message_user(request, message)
+    set_goodusers_process_photos_true.short_description = 'Set "To Be Processed for photos" to "Yes"' 
+
+
+    def set_goodusers_process_photos_false(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to False.
+           Process only GoodUsers that have flag to_be_processed set to True.
+           to_be_processed==True
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_photos_false(request, queryset)
+        self.message_user(request, message)                
+    set_goodusers_process_photos_false.short_description = 'Set "To Be Processed for photos" to "No"' 
+    
+           
+           
+    def set_goodusers_process_friends_true(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to True.
+           Process only GoodUsers that have flag to_be_processed set to False.
+           to_be_processed==False
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_friends_true(request, queryset)
+        self.message_user(request, message)
+    set_goodusers_process_friends_true.short_description = 'Set "To Be Processed for Friends" to "Yes"' 
+
+
+    def set_goodusers_process_friends_false(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to False.
+           Process only GoodUsers that have flag to_be_processed set to True.
+           to_be_processed==True
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_friends_false(request, queryset)
+        self.message_user(request, message)                
+    set_goodusers_process_friends_false.short_description = 'Set "To Be Processed for Friends" to "No"'            
+           
+           
+
+    def set_goodusers_process_followings_true(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to True.
+           Process only GoodUsers that have flag to_be_processed set to False.
+           to_be_processed==False
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_friends_true(request, queryset)
+        self.message_user(request, message)
+    set_goodusers_process_followings_true.short_description = 'Set "To Be Processed for Friends" to "Yes"' 
+
+
+    def set_goodusers_process_followings_false(self, request, queryset):
+        '''Action -> Set "to_be_processed" flag for selected GoodUsers to False.
+           Process only GoodUsers that have flag to_be_processed set to True.
+           to_be_processed==True
+        '''
+        admin_utils = InstagramUserAdminUtils()
+        message = admin_utils.set_instagram_users_process_friends_false(request, queryset)
+        self.message_user(request, message)                
+    set_goodusers_process_followings_false.short_description = 'Set "To Be Processed for Friends" to "No"'            
+           
+           
 
     '''Determine what is displayed when GoodUser is displayed as a list'''
     list_display = ('instagram_user_name', 
-                    'number_of_followers', 'creation_date',
+                    'number_of_followers', 
+                    'creation_date',
                     'to_be_processed_for_basic_info',
                     'to_be_processed_for_friends', 
                     'to_be_processed_for_followings',
@@ -91,11 +163,19 @@ class GoodUserAdmin(admin.ModelAdmin):
     '''Add a field from the model by which you want to search'''
     search_fields = ('instagram_user_name', )
     
-    readonly_fields = ('user_type',)    
+    readonly_fields = ('user_type',
+                       )    
  
     '''Define a list of actions listed in Admin interface Action combo box'''
     actions = (process_gooduser, set_goodusers_process_true, 
-               set_goodusers_process_false)
+               set_goodusers_process_false,
+               set_goodusers_process_photos_false,
+               set_goodusers_process_photos_true,
+               set_goodusers_process_friends_false,
+               set_goodusers_process_friends_true,
+               set_goodusers_process_followings_false,
+               set_goodusers_process_followings_true,
+               )
     
     filter_horizontal = ('user_category', 'user_attribute', )
     
@@ -231,6 +311,7 @@ class InstagramUserAdminUtils():
         self.l_analyzed_goodusers = 0
         self.l_private_followers = 0 
         self.l_already_friends = 0 
+        buf = None
         
         #queryset = queryset.filter(to_be_processed_for_friends=True)
         
@@ -249,9 +330,8 @@ class InstagramUserAdminUtils():
             self.l_instagram_api_limit_start, self.l_instagram_api_limit = \
                  ig_session.get_api_limits()
                  
-            if (ig_session) and \
-               (self.l_instagram_api_limit_start > (settings.FRIENDS_TR_ANALYZE_N_FRIENDS + 50)):
-                '''We have Instagram session and enough API call remaining'''
+            if (ig_session):
+                '''We have Instagram session'''
                 user_search = ig_session.is_instagram_user_valid(obj.instagram_user_name)
                 
                 if user_search:
@@ -265,26 +345,24 @@ class InstagramUserAdminUtils():
                         else:
                             l_analyze_n_followers = settings.FRIENDS_TR_ANALYZE_N_FRIENDS
                         
-                        if settings.TEST_APP == True:
-                            '''Override for testing, analyze less followers'''
-                            l_analyze_n_followers = settings.TEST_APP_FRIENDS_TR_ANALYZE_N_FRIENDS
-                             
-                        l_best_instagram_followers = \
-                            BestFollowers(l_instagram_user_id, l_analyze_n_followers, ig_session)
-                            
-                        l_instagram_friends = \
-                            l_best_instagram_followers.get_best_instagram_followers()
-                        self.l_analyzed_goodusers += 1
-                        self.l_analyzed_followers += l_best_instagram_followers.l_analyzed_followers
-                        self.l_private_followers += l_best_instagram_followers.l_private_followers
-                        self.l_already_friends += l_best_instagram_followers.l_already_friends
-                        if l_instagram_friends:
-                            '''Found followers - save them to our database'''
-                            for follower in l_instagram_friends:
-                                l_exists = Friend.objects.filter(instagram_user_id=follower.id)
+                        if (self.l_instagram_api_limit_start > (l_analyze_n_followers + 50)):
+                            '''Do we have enough API requests available? Yes'''
+                            if settings.TEST_APP == True:
+                                '''Override for testing, analyze less followers'''
+                                l_analyze_n_followers = settings.TEST_APP_FRIENDS_TR_ANALYZE_N_FRIENDS
+                                 
+                            l_best_instagram_followers = \
+                                BestFollowers(l_instagram_user_id, l_analyze_n_followers, ig_session)
                                 
-                                if l_exists.count() == 0:
-                                    '''Friend does not exist - add new'''
+                            l_instagram_friends, l_existing_instagram_friends = \
+                                l_best_instagram_followers.get_best_instagram_followers()
+                            self.l_analyzed_goodusers += 1
+                            self.l_analyzed_followers += l_best_instagram_followers.l_analyzed_followers
+                            self.l_private_followers += l_best_instagram_followers.l_private_followers
+                            self.l_already_friends += l_best_instagram_followers.l_already_friends
+                            if l_instagram_friends:
+                                '''Found followers - save them to our database'''
+                                for follower in l_instagram_friends:
                                     instagram_utils = InstagramUserAdminUtils()
                                     l_new_friend = \
                                         Friend(instagram_user_id=follower.id,
@@ -304,29 +382,171 @@ class InstagramUserAdminUtils():
                                     l_new_friend.gooduser.add(obj)
     
                                     self.l_found_friends += 1
-                                else:
-                                    '''Friend exists - add new gooduser'''
-                                    l_exists.gooduser.add(obj)
-                                    l_exists.save()
-                                    pass
+                                         
+                            if l_existing_instagram_friends:
+                                for follower in l_existing_instagram_friends:
+                                    l_existing = Friend.objects.filter(instagram_user_id=follower)
+                                     
+                                    if l_existing.count() != 0:                                                                    
+                                        l_existing = get_object_or_404(Following, instagram_user_id=follower)
+                                        if obj.user_type == 'gooduser':                                          
+                                            l_existing.gooduser.add(obj)
+                                            l_existing.save()
+                                        if obj.user_type == 'member':                                          
+                                            l_existing.member.add(obj)
+                                            l_existing.save()                                           
+                        else:
+                            buf = "Not enough Instagram API reuqests available (available %s, needed %)" %\
+                                  (self.l_instagram_api_limit_start, (l_analyze_n_followers + 50))
+                            pass
+            obj.save()    
+
+        self.l_instagram_api_limit_end, self.l_instagram_api_limit = \
+             ig_session.get_api_limits()
+        
+        if not buf:     
+            buf = 'Analyzed %s Goodusers. Analyzed %s folowers. Found %s private followers.' \
+                   ' Found %s new Friends (%s existing friends). Instagram API (%s - %s/%s / diff: %s)' \
+                   % (self.l_analyzed_goodusers, self.l_analyzed_followers,
+                      self.l_private_followers, self.l_found_friends, self.l_already_friends,
+                      self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
+                      self.l_instagram_api_limit, 
+                      (int(self.l_instagram_api_limit_start) - int(self.l_instagram_api_limit_end))
+                      )
+        return buf
+    analyze_instagram_user_find_friends.short_description = 'Find new friends from Instagram user'         
+
+        
+        
+    def analyze_instagram_user_find_followings(self, request, obj):
+        ''' Analyze Instagram Users followings and find potential
+           Friends.
+        '''
+        
+        self.l_analyzed_followings = 0
+        self.l_found_followings = 0
+        self.l_analyzed_goodusers = 0
+        self.l_private_followings = 0 
+        self.l_already_followings = 0
+        buf = None 
+        
+        #queryset = queryset.filter(to_be_processed_for_friends=True)
+        
+        if obj.to_be_processed_for_followings == True:
+            ig_session = InstagramSession(p_is_admin=True, p_token='')
+            ig_session.init_instagram_API()
+            
+            self.l_instagram_api_limit_start, self.l_instagram_api_limit = \
+                 ig_session.get_api_limits()
+            
+            #for obj in queryset:
+            obj.to_be_processed_for_followings = False
+            obj.last_processed_for_followings_date = timezone.datetime.now()
+            obj.times_processed_for_followings = obj.times_processed_for_followings + 1
+            '''get Instagram user data'''
+            self.l_instagram_api_limit_start, self.l_instagram_api_limit = \
+                 ig_session.get_api_limits()
+                 
+            if (ig_session):
+                '''We have Instagram session and enough API call remaining'''
+                user_search = ig_session.is_instagram_user_valid(obj.instagram_user_name)
+                
+                if user_search:
+                    instagram_user = ig_session.get_instagram_user(user_search[0].id)
+                    
+                    if instagram_user:
+                        l_instagram_user_id = instagram_user.id  
+                        l_number_of_followers = instagram_user.counts[u'followed_by']
+                        if l_number_of_followers < settings.FOLLOWINGS_TR_ANALYZE_N_FOLLOWINGS:
+                            l_analyze_n_followers = l_number_of_followers
+                        else:
+                            l_analyze_n_followers = settings.FOLLOWINGS_TR_ANALYZE_N_FOLLOWINGS
+                        
+                        if (self.l_instagram_api_limit_start > (l_analyze_n_followers + 50)):
+                            
+                            if settings.TEST_APP == True:
+                                '''Override for testing, analyze less followers'''
+                                l_analyze_n_followers = settings.TEST_APP_FRIENDS_TR_ANALYZE_N_FOLLOWINGS
+                                 
+                            l_best_instagram_followings = \
+                                BestFollowings(l_instagram_user_id, obj.user_type,
+                                               l_analyze_n_followers, ig_session
+                                               )
+                                
+                            l_instagram_followings, l_existing_followings = \
+                                l_best_instagram_followings.get_best_instagram_followings()
+                            self.l_analyzed_goodusers += 1
+                            self.l_analyzed_followings += l_best_instagram_followings.l_analyzed_followings
+                            self.l_private_followings += l_best_instagram_followings.l_private_followings
+                            self.l_already_followings += l_best_instagram_followings.l_already_followings
+                            if l_instagram_followings:
+                                '''Found followers - save them to our database'''
+                                for following in l_instagram_followings:
+                                    '''Friend does not exist - add new'''
+                                    instagram_utils = InstagramUserAdminUtils()
+                                    l_new_following = \
+                                        Following(instagram_user_id=following.id,
+                                               instagram_user_name=following.username, instagram_user_name_valid=True,
+                                               instagram_user_full_name=following.full_name,
+                                               instagram_profile_picture_URL=following.profile_picture,
+                                               instagram_user_bio=following.bio,
+                                               instagram_user_website_URL=following.website,
+                                               is_user_active=True,
+                                               number_of_followers=following.counts[u'followed_by'],
+                                               number_of_followings=following.counts[u'follows'],
+                                               number_of_media=following.counts[u'media'],
+                                               instagram_user_profile_page_URL=instagram_utils.generate_instagram_profile_page_URL(following.username),
+                                               iconosquare_user_profile_page_URL=instagram_utils.generate_iconosquare_profile_page_URL(following.id)
+                                               )
+                                    l_new_following.save()
+                                    if obj.user_type == 'gooduser':                                        
+                                        l_new_following.gooduser.add(obj)
+                                        l_new_following.save()
+                                    if obj.user_type == 'member':                                        
+                                        l_new_following.member.add(obj)                                            
+                                        l_new_following.save()        
+                                    self.l_found_followings += 1
+
+                                           
+                            
+                            if l_existing_followings:
+                                for following in l_existing_followings:
+                                    l_existing = Following.objects.filter(instagram_user_id=following)
+                                    
+                                    if l_existing.count() != 0:
+                                        l_existing = get_object_or_404(Following, instagram_user_id=following)
+                                        if obj.user_type == 'gooduser':                                          
+                                            l_existing.gooduser.add(obj)
+                                            l_existing.save()
+                                        if obj.user_type == 'member':                                          
+                                            l_existing.member.add(obj)
+                                            l_existing.save() 
+
+                        else:
+                            buf = "Not enough Instagram API reuqests available (available %s, needed %)" %\
+                                  (self.l_instagram_api_limit_start, (l_analyze_n_followers + 50))
+                            pass                
                 
             obj.save()    
 
         self.l_instagram_api_limit_end, self.l_instagram_api_limit = \
              ig_session.get_api_limits()
-             
-        buf = 'Analyzed %s Goodusers. Analyzed %s folowers. Found %s private followers.' \
-               ' Found %s new Friends (%s existing friends). Instagram API (%s - %s/%s / diff: %s)' \
-               % (self.l_analyzed_goodusers, self.l_analyzed_followers,
-                  self.l_private_followers, self.l_found_friends, self.l_already_friends,
-                  self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
-                  self.l_instagram_api_limit, 
-                  (int(self.l_instagram_api_limit_start) - int(self.l_instagram_api_limit_end))
-                  )
-        return buf
-    analyze_instagram_user_find_friends.short_description = 'Find new friends from GoodUser'         
-
         
+        if not buf:     
+            buf = 'Analyzed %s Goodusers. Analyzed %s followings. Found %s private followings.' \
+                   ' Found %s new Followings (%s existing Followings). Instagram API (%s - %s/%s / diff: %s)' \
+                   % (self.l_analyzed_goodusers, self.l_analyzed_followings,
+                      self.l_private_followings, self.l_found_followings, self.l_already_followings,
+                      self.l_instagram_api_limit_start, self.l_instagram_api_limit_end, 
+                      self.l_instagram_api_limit, 
+                      (int(self.l_instagram_api_limit_start) - int(self.l_instagram_api_limit_end))
+                      )
+        return buf
+    analyze_instagram_user_find_followings.short_description = 'Find Instagram user''s followings'  
+    
+    
+    
+            
     def analyze_instagram_user(self, api, p_instagram_user):
         '''Do the processing of Good User with Instagram API
            
@@ -414,8 +634,16 @@ class InstagramUserAdminUtils():
                     
                 if obj.user_type == 'member':
                     self.l_find_top_n_photos = settings.MEMBERS_FIND_TOP_N_PHOTOS
-                    self.l_search_last_photos = settings.MEMBERS_SEARCH_N_PHOTOS                                                       
-                                    
+                    self.l_search_last_photos = settings.MEMBERS_SEARCH_N_PHOTOS
+                    
+                if obj.user_type == 'following':
+                    self.l_find_top_n_photos = settings.FOLLOWINGS_FIND_TOP_N_PHOTOS
+                    self.l_search_last_photos = settings.FOLLOWINGS_SEARCH_N_PHOTOS                                                                             
+                
+                if settings.DEBUG == True:
+                    '''reduce number of photos to search'''
+                    self.l_search_last_photos = 50 
+                                      
                 l_best_photos = BestPhotos(obj.instagram_user_id, self.l_find_top_n_photos, 
                                            self.l_search_last_photos, ig_session
                                            )
@@ -433,7 +661,9 @@ class InstagramUserAdminUtils():
                 if obj.user_type == 'friend':
                     Photo.objects.filter(friend_id=obj.pk).delete()
                 if obj.user_type == 'member':
-                    Photo.objects.filter(member_id=obj.pk).delete()                    
+                    Photo.objects.filter(member_id=obj.pk).delete()
+                if obj.user_type == 'following':
+                    Photo.objects.filter(following_id=obj.pk).delete()                                          
                 
                 '''Insert new best photos for this user'''
                 if l_top_photos:
@@ -443,7 +673,9 @@ class InstagramUserAdminUtils():
                         if obj.user_type == 'friend':                        
                             rec = Photo(instagram_photo_id=val[0], photo_rating=val[1], friend_id=obj)  
                         if obj.user_type == 'member':                        
-                            rec = Photo(instagram_photo_id=val[0], photo_rating=val[1], member_id=obj)                                                      
+                            rec = Photo(instagram_photo_id=val[0], photo_rating=val[1], member_id=obj) 
+                        if obj.user_type == 'following':                        
+                            rec = Photo(instagram_photo_id=val[0], photo_rating=val[1], following_id=obj)                                                                                  
                         rec.save()
                         l_counter_pics += 1
                         
@@ -462,11 +694,12 @@ class InstagramUserAdminUtils():
             
             '''Analyze followers of this user for followings'''
             if obj.to_be_processed_for_followings == True:
+                message_followings = self.analyze_instagram_user_find_followings(request, obj)
                 l_counter_for_followings += 1
                 obj.times_processed_for_followings = obj.times_processed_for_followings + 1
                 obj.to_be_processed_for_followings = False
                 obj.save()
-                message_followings = 'Success'                
+                #message_followings = 'Success'                
                 pass                                                 
             
             
@@ -526,7 +759,107 @@ class InstagramUserAdminUtils():
         buf = '%s user(s) flagged to "Not To Be Processed for basic info" successfully.' \
             % (l_counter)
         
-        return buf   
+        return buf  
+    
+    def set_instagram_users_process_photos_true(self, request, queryset):
+          
+        queryset = queryset.filter(to_be_processed_for_basic_info=False)
+        l_counter = 0
+        
+        for obj in queryset:
+            obj.to_be_processed_for_photos = True        
+            obj.save()
+            l_counter += 1
+        
+         
+        buf = '%s user(s) flagged to "To Be Processed for photos" successfully.' \
+            % (l_counter)
+        
+        return buf
+   
+    def set_instagram_users_process_photos_false(self, request, queryset):
+          
+        queryset = queryset.filter(to_be_processed_for_basic_info=True)
+        l_counter = 0
+        
+        for obj in queryset:
+            obj.to_be_processed_for_photos = False        
+            obj.save()
+            l_counter += 1
+        
+ 
+        buf = '%s user(s) flagged to "Not To Be Processed for photos" successfully.' \
+            % (l_counter)
+        
+        return buf       
+               
+
+
+    def set_instagram_users_process_friends_true(self, request, queryset):
+          
+        queryset = queryset.filter(to_be_processed_for_basic_info=False)
+        l_counter = 0
+        
+        for obj in queryset:
+            obj.to_be_processed_for_friends = True        
+            obj.save()
+            l_counter += 1
+        
+         
+        buf = '%s user(s) flagged to "To Be Processed for Friends" successfully.' \
+            % (l_counter)
+        
+        return buf
+   
+    def set_instagram_users_process_friends_false(self, request, queryset):
+          
+        queryset = queryset.filter(to_be_processed_for_basic_info=True)
+        l_counter = 0
+        
+        for obj in queryset:
+            obj.to_be_processed_for_friends = False        
+            obj.save()
+            l_counter += 1
+        
+ 
+        buf = '%s user(s) flagged to "Not To Be Processed for Friends" successfully.' \
+            % (l_counter)
+        
+        return buf
+    
+    
+    def set_instagram_users_process_followings_true(self, request, queryset):
+          
+        queryset = queryset.filter(to_be_processed_for_basic_info=False)
+        l_counter = 0
+        
+        for obj in queryset:
+            obj.to_be_processed_for_followings = True        
+            obj.save()
+            l_counter += 1
+        
+         
+        buf = '%s user(s) flagged to "To Be Processed for Followings" successfully.' \
+            % (l_counter)
+        
+        return buf
+   
+    def set_instagram_users_process_followings_false(self, request, queryset):
+          
+        queryset = queryset.filter(to_be_processed_for_basic_info=True)
+        l_counter = 0
+        
+        for obj in queryset:
+            obj.to_be_processed_for_followings = False        
+            obj.save()
+            l_counter += 1
+        
+ 
+        buf = '%s user(s) flagged to "Not To Be Processed for Followings" successfully.' \
+            % (l_counter)
+        
+        return buf    
+    
                
     def generate_instagram_profile_page_URL(self, p_instagram_user_name):
         '''Generate Instagram.com profile page URL for the user
