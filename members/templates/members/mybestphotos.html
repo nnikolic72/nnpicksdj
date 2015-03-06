@@ -7,6 +7,9 @@
 {% block stylesheets %}
 {{ block.super }}
     <link rel="stylesheet" href="{{STATIC_URL}}css/members.css">
+    {% if request.flavour == 'mobile' %}
+    <link rel="stylesheet" href="{{STATIC_URL}}css/membersmobile.css">
+    {% endif %}
 {% endblock stylesheets %}
 
 {% block pagetitle %}- @{{ user.username }}: My best photos 
@@ -19,7 +22,7 @@
         {% if best_photos %}
             {% for photo in best_photos %}
                 <div class='bestphotos' id='bestphotos_{{ photo.instagram_photo_id }}'>
-                <img src='{{ photo.instagram_low_resolution_URL }}'></img>
+                <img class='bestphotosimg' src='{{ photo.instagram_low_resolution_URL }}'></img>
                 </div>
             {% endfor %}
            

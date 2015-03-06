@@ -14,7 +14,7 @@
 
         {% block stylesheets %}
         <link rel="stylesheet" href="{{STATIC_URL}}css/normalize.min.css">
-        <link rel="stylesheet" href="{{STATIC_URL}}css/main.css">
+        <link rel="stylesheet" href="{{STATIC_URL}}css/mainmobile.css">
         {% endblock stylesheets %}
         
         {% block javascript %}
@@ -39,13 +39,7 @@
                 </div>
                 </div>
  
-                <nav>
-                    <ul>
-                        <li><a href="{% url 'members:index' %}">Dashboard</a></li>
-                        <li><a href="{% url 'goodusers:index' %}">Browse</a></li>
-                        <li><a href="{% url 'login:index' %}">My Account</a></li>
-                    </ul>
-                </nav>
+
 
             </header>
         </div>
@@ -60,11 +54,19 @@
 
                                 
             </div> <!-- #main -->
+
+                <nav>
+                    <ul>
+                        <li><a href="{% url 'members:index' %}">Dashboard</a></li>
+                        <li><a href="{% url 'goodusers:index' %}">Browse</a></li>
+                        <li><a href="{% url 'login:index' %}">My Account</a></li>
+                    </ul>
+                </nav>                
         </div> <!-- #main-container -->
 
-        <div class="footer-container">
+        <div class="footer-container" id="footer">
             <footer class="wrapper">
-                <h3>Copyright 2015 by SquareSensor</h3>
+                <b>Copyright 2015 by SquareSensor</b>
             </footer>
         </div>
 

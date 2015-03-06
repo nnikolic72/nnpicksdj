@@ -38,9 +38,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
+    'django_mobile.context_processors.flavour',
 )
 
 TEMPLATE_LOADERS = (
+    'django_mobile.loader.Loader',
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
     'django.template.loaders.eggs.Loader',
@@ -57,7 +59,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'endless_pagination',    
+    'endless_pagination', 
+    'django_mobile',       
     'social_auth',
     'csvimport',  # use AppConfig for django >=1.7 csvimport >=2.2
     'dajaxice',
@@ -79,6 +82,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django_mobile.middleware.MobileDetectionMiddleware',
+    'django_mobile.middleware.SetFlavourMiddleware',
 #    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 

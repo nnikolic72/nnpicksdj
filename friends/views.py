@@ -20,16 +20,17 @@ class FriendsListView(TemplateView):
         
         self.friends_list = Friend.objects.order_by('instagram_user_name')
         self.categories_list = Category.objects.filter(parent__isnull=True).order_by('title')
+        self.photos_dict = {}
             
         for friend in self.friends_list:
-            l_friend_photos = Photo.objects.filter(following_id=friend).order_by('-photo_rating')
+            l_friend_photos = Photo.objects.filter(friend_id=friend).order_by('-photo_rating')
             for photo in l_friend_photos:
                 if friend.id in self.photos_dict.keys():
                     self.photos_dict[friend.id].extend([photo])
                 else:
                     self.photos_dict[friend.id] = [photo]
                     
-        return render(request, self.template_name, {'followings_list': self.friends_list, 
+        return render(request, self.template_name, {'friends_list': self.friends_list, 
                                                     'categories_list' : self.categories_list,
                                                     'photos_dict': dict(self.photos_dict)
                                                     }
